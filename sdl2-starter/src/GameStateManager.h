@@ -1,4 +1,13 @@
-// GameStateManager.h
+/*********************************************
+Author: Aaron Chakine
+Description: The Game State Manager class. Handles switching between states, and running current states.
+
+Subsequent changes:
+Format: [Author] - [Changes]
+- 
+*********************************************/
+
+
 #include <stack>
 #include "GameState.h"
 

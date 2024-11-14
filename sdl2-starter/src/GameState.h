@@ -1,5 +1,15 @@
-#include <SDL2/SDL.h>
+/*********************************************
+Author: Aaron Chakine
+Description: A Game State class. This class represents other classes derived from this one, such as
+             a menu state, settings state, and game state. 
 
+Subsequent changes:
+Format: [Author] - [Changes]
+- 
+*********************************************/
+
+
+#include <SDL2/SDL.h>
 
 class GameState {
 public:

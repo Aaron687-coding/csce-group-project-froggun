@@ -1,3 +1,14 @@
+/*********************************************
+Author: Aaron Chakine
+Description: The main loop, which runs game states using a state manager from the GameStateManager class. 
+             See GameStateManager.h for state manager details and GameState.h for state details.
+
+Subsequent changes:
+Format: [Author] - [Changes]
+- 
+*********************************************/
+
+
 #include <iostream>
 #include <SDL2/SDL.h>
 #include "GameStateManager.h"
