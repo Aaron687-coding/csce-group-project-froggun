@@ -7,6 +7,9 @@ using namespace std;
 // Use a State Manager to handle game states!
 // NOTE: make a real state before trying to run the program
 
+// argc and argv are used to pass arguments into the program in the terminal; this can help with debugging when
+// you need to test one function
+//TODO: interpret these arguments and run specific functions of the program
 int main(int argc, char* argv[]) {
     // Initialize SDL and other systems
     SDL_Init(SDL_INIT_EVERYTHING);
