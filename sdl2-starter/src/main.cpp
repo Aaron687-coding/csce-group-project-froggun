@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Clean up
-    stateManager.~GameStateManager(); // Explicitly call destructor to clean up states
+    stateManager.~GameStateManager(); // Explicitly call destructor to clean up all states
     SDL_DestroyRenderer(renderer); // free the renderer from memory
     SDL_DestroyWindow(window); // free window from memory
     SDL_Quit(); // quit the sdl window
