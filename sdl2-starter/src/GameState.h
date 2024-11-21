@@ -1,3 +1,6 @@
+#ifndef GAME_STATE_H
+#define GAME_STATE_H
+
 /*********************************************
 Author: Aaron Chakine
 Description: A Game State class. This class represents other classes derived from this one, such as
@@ -7,7 +10,6 @@ Subsequent changes:
 Format: [Author] - [Changes]
 - 
 *********************************************/
-
 
 #include <SDL2/SDL.h>
 
@@ -21,3 +23,5 @@ public:
     virtual void CleanUp() = 0;
     virtual ~GameState() {}
 };
+
+#endif // GAME_STATE_H
