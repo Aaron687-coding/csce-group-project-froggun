@@ -4,22 +4,26 @@ CC = g++
 
 # Explicitly list source files
 SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/frogClass.cpp
-HEADERS = $(SRC_DIR)/GameState.h $(SRC_DIR)/gameplay.h $(SRC_DIR)/GameStateManager.h
+HEADERS = $(SRC_DIR)/GameState.h $(SRC_DIR)/gameplay.h $(SRC_DIR)/GameStateManager.h $(SRC_DIR)/frogClass.h
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 OBJ_NAME = play
 
 # SDL paths
-SDL_INCLUDE = -I/opt/homebrew/Cellar/sdl2/2.30.9/include/SDL2 \
-              -I/opt/homebrew/Cellar/sdl2_image/2.8.2/include/SDL2
-SDL_LIB = -L/opt/homebrew/Cellar/sdl2/2.30.9/lib \
-          -L/opt/homebrew/Cellar/sdl2_image/2.8.2/lib
+SDL_INCLUDE = -I/opt/homebrew/include \
+              -I/opt/homebrew/include/SDL2 \
+              -I/opt/homebrew/Cellar/sdl2/2.30.9/include/SDL2 \
+              -I/opt/homebrew/Cellar/sdl2_image/2.8.2_2/include/SDL2
+
+SDL_LIB = -L/opt/homebrew/lib
+
+# Add rpath for runtime library loading
+RPATH = -Wl,-rpath,/opt/homebrew/lib
 
 # Compiler and linker flags
-INCLUDE_PATHS = -Iinclude $(SDL_INCLUDE)
+INCLUDE_PATHS = -I$(SRC_DIR) $(SDL_INCLUDE)
 LIBRARY_PATHS = $(SDL_LIB)
 COMPILER_FLAGS = -std=c++14 -Wall -O0 -g
-# Changed SDL2-2.0 to SDL2 for macOS
-LINKER_FLAGS = -lSDL2 -lSDL2_image
+LINKER_FLAGS = -lSDL2 -lSDL2_image $(RPATH)
 
 # Debug information
 $(info Sources: $(SRCS))
@@ -34,7 +38,7 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 # Compile source files into object files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	@echo "Creating build directory..."
 	@mkdir -p $(BUILD_DIR)
 	@echo "Compiling $<..."

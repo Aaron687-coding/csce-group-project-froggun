@@ -1,5 +1,8 @@
+#ifndef GAMEPLAY_H
+#define GAMEPLAY_H
+
 #include "GameState.h"
-#include "frogClass.cpp"
+#include "frogClass.h"
 
 class gameplay : public GameState {
 private:
@@ -96,3 +99,5 @@ public:
         // The Frog destructor will handle cleanup of its textures
     }
 };
+
+#endif // GAMEPLAY_H
