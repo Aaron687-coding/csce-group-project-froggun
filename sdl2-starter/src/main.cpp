@@ -12,6 +12,7 @@ Format: [Author] - [Changes]
 #include <iostream>
 #include <SDL2/SDL.h>
 #include "GameStateManager.h"
+#include "gameplay.h"
 
 using namespace std;
 
@@ -33,9 +34,8 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
     GameStateManager stateManager; // Use GameStateManager class
-    //TODO: push states to the manager with the following statement:
-    //TODO-v2: make a state in the first place
-    //stateManager.PushState(new ExampleState());
+    
+    stateManager.PushState(new gameplay()); // Push a gameplay state for debugging purposes
 
     bool isRunning = true; // while loop variable
     SDL_Event event; // variable to get events

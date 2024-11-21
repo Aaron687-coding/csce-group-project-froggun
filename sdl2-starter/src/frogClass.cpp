@@ -3,6 +3,7 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
+#include <cmath> // Added for sqrt
 
 class Frog {
     
@@ -22,7 +23,7 @@ class Frog {
         // Constructor
         Frog(float startX, float startY) 
             : x(startX), y(startY), velocityX(0), velocityY(0), 
-              grounded(false), currentState(State::IDLE), 
+              grounded(true), currentState(State::IDLE), 
               facing(Direction::RIGHT) {
             collisionBox = {static_cast<int>(x), static_cast<int>(y), (16 * 4), (14 * 4)}; // Default size
         }
@@ -55,7 +56,9 @@ class Frog {
             // Update physics
             if (!grounded) {
                 velocityY += GRAVITY * deltaTime;
-            }
+                fallVelocity += GRAVITY * deltaTime; // measure how fast the frog is falling
+            } else
+                fallVelocity = 0;
 
             x += velocityX * deltaTime;
             y += velocityY * deltaTime;
@@ -77,8 +80,39 @@ class Frog {
 
         // Movement functions
         void grapple(int targetX, int targetY) {
-            int distX = targetX - x, 
-                distY = targetY - y;
+            // Calculate direction vector
+            float dirX = targetX - x;
+            float dirY = targetY - y;
+            
+            // Calculate slowing effects
+            float drag = 1;
+            
+            // Calculate distance to normalize the direction
+            float distance = std::sqrt(dirX * dirX + dirY * dirY);
+            
+            if (!grounded) {
+                float yDir = velocityY / fabs(velocityY); // check the direction of velocityY
+                 // prevent the frog from falling during grappling for fun reasons :D
+                velocityY = (fabs(velocityY) - fallVelocity) * yDir;
+                fallVelocity = 0;
+            } else
+                drag = GRAPPLE_DRAG; // reduce grapple speed if froggo is on the ground for mechanics reasons hehehe
+            
+
+            // Normalize the direction vector and apply grapple speed
+            if (distance > 0) {  // Prevent division by zero
+                velocityX = (dirX / distance) * GRAPPLE_SPEED * drag;
+                velocityY = (dirY / distance) * GRAPPLE_SPEED * drag;
+            }
+            
+            // Update facing direction based on movement
+            if (velocityX > 0) {
+                facing = Direction::RIGHT;
+            } else if (velocityX < 0) {
+                facing = Direction::LEFT;
+            }
+            
+            
             currentState = State::GRAPPLING;
         }
 
@@ -90,8 +124,23 @@ class Frog {
             }
         }
 
+        void move (int directionX, int directionY) {
+            velocityX += directionX * MOVE_SPEED;
+            velocityY += directionY * MOVE_SPEED;
+        }
+
         void stopMoving() {
             velocityX = 0;
+            velocityY = 0;
+            // stop the frog from falling; once it makes a full hop (its velocity turns into its negative starting velocity),
+            // reset fallVelocity and velocityY, and set grounded to true
+            if (fallVelocity <= -JUMP_FORCE) { // use fall velocity since velocityY also contains froggy movement
+                velocityY = 0;
+                fallVelocity = 0;
+
+                grounded = true;
+            }
+
             if (grounded) {
                 currentState = State::IDLE;
             }
@@ -122,6 +171,8 @@ class Frog {
                    animations.at(currentState).spritesheet : nullptr;
         }
 
+        bool getGrounded() const { return grounded; } // Add getter for grounded state
+
         // Setters
         void setGrounded(bool isGrounded) { 
             grounded = isGrounded;
@@ -133,12 +184,13 @@ class Frog {
     private:
         // Position and physics
         float x, y; // Use floats for smoother movement
-        float velocityX, velocityY;
+        float velocityX, velocityY, fallVelocity;
         bool grounded; // we don't want flying frogs!
         
         // Constants; apparently static constexpr is more stable than consts
         static constexpr float MOVE_SPEED = 300.0f; // fine-tune these values if you like
         static constexpr float GRAPPLE_SPEED = 700.0f;
+        static constexpr float GRAPPLE_DRAG = 0.6f; // percentage; slow down froggo if grappling on the ground by grapple_drag
         static constexpr float JUMP_FORCE = -500.0f;
         static constexpr float GRAVITY = 980.0f;
         
@@ -154,8 +206,8 @@ class Frog {
             int frameHeight = 14; // height of each sprite in the spritesheet
             int frameCount; // number of frames in each animation
             float frameTime;  // Time per frame in seconds
-            float currentTime;
-            int currentFrame;
+            float currentTime; // current time; use this to animate the sprite with frameTime
+            int currentFrame; // self-explanatory
         };
         
         std::unordered_map<State, Animation> animations; // make a map that ties each animation to a state :D
