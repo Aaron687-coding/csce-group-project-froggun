@@ -59,7 +59,7 @@ private:
     
     // Constants
     static constexpr float MOVE_SPEED = 300.0f;
-    static constexpr float GRAPPLE_SPEED = 700.0f;
+    static constexpr float GRAPPLE_SPEED = 1500.0f;
     static constexpr float GRAPPLE_DRAG = 0.6f;
     static constexpr float JUMP_FORCE = -500.0f;
     static constexpr float GRAVITY = 980.0f;

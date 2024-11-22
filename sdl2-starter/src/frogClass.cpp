@@ -4,7 +4,7 @@
 Frog::Frog(float startX, float startY) 
     : x(startX), y(startY), velocityX(0), velocityY(0), 
       grounded(true), currentState(State::IDLE), 
-      facing(Direction::RIGHT) {
+      facing(Direction::LEFT) {
     collisionBox = {static_cast<int>(x), static_cast<int>(y), (16 * 4), (14 * 4)}; // Default size
 }
 
