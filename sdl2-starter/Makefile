@@ -1,4 +1,5 @@
 # Knowledge of Make: https://www.gnu.org/software/make/manual/html_node/index.html#SEC_Contents
+# Make is sooo fun :')
 
 SRC_DIR = src
 BUILD_DIR = build/debug
@@ -15,6 +16,12 @@ SDL_INCLUDE = -I/opt/homebrew/include \
               -I/opt/homebrew/include/SDL2 \
               -I$(CURDIR)/include \
               -I$(CURDIR)/include/SDL2
+# Mac OS setup below; You can make it a windows setup by replacing /opt/homebrew/ with C:/...
+# e.g.,
+# SDL_INCLUDE = -IC:/SDL2/include \        # If installed system-wide in C:/SDL2
+#               -IC:/SDL2/include/SDL2 \
+#               -I$(CURDIR)/include \      # Local project includes (same as current)
+#               -I$(CURDIR)/include/SDL2 
 
 # Compiler and linker flags
 INCLUDE_PATHS = -I$(SRC_DIR) $(SDL_INCLUDE)
