@@ -1,62 +1,101 @@
+/*********************************************
+Author: Aaron Chakine
+Description: The main loop, which runs game states using a state manager from the GameStateManager class. 
+             See GameStateManager.h for state manager details and GameState.h for state details.
+
+Subsequent changes:
+Format: [Author] - [Changes]
+- 
+*********************************************/
+
+// SCREENSIZE IS 1280x720
+
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "GameStateManager.h"
+#include "gameplay.h"
 
 using namespace std;
 
-// Use a State Manager to handle game states!
-// NOTE: make a real state before trying to run the program
-
 int main(int argc, char* argv[]) {
     // Initialize SDL and other systems
-    SDL_Init(SDL_INIT_EVERYTHING);
-    // Initialize our blank slate of a window
-    SDL_Window* window = SDL_CreateWindow("Froggun",
-                                          SDL_WINDOWPOS_CENTERED,
-                                          SDL_WINDOWPOS_CENTERED,
-                                          800, 600, SDL_WINDOW_SHOWN);
-    // initialize renderer
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
-
-    GameStateManager stateManager; // Use GameStateManager class
-    //TODO: push states to the manager with the following statement:
-    //TODO-v2: make a state in the first place
-    //stateManager.PushState(new ExampleState());
-
-    bool isRunning = true; // while loop variable
-    SDL_Event event; // variable to get events
-    Uint32 lastTime = SDL_GetTicks(); // Use to calculate delta time
-
-    while (isRunning) {
-        // Calculate delta time
-        Uint32 currentTime = SDL_GetTicks(); // in milliseconds
-        float deltaTime = (currentTime - lastTime) / 1000.0f; // Divide msec by 1000 to get seconds 
-        lastTime = currentTime; // Update time
-
-        // Handle SDL events
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) { // If the event is the close button,
-                isRunning = false;        // quit the window
-            }
-            stateManager.HandleEvents(event); // Otherwise, send it to the stateManager
-        }
-
-        // Update the current state
-        stateManager.Update(deltaTime);
-
-        // Render the current state
-        SDL_RenderClear(renderer); // clear previous render
-        stateManager.Render(renderer); // render new frame depending on current state
-        SDL_RenderPresent(renderer); // present the new frame
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << endl;
+        return 1;
     }
 
-    // Clean up
-    stateManager.~GameStateManager(); // Explicitly call destructor to clean up states
-    SDL_DestroyRenderer(renderer); // free the renderer from memory
-    SDL_DestroyWindow(window); // free window from memory
-    SDL_Quit(); // quit the sdl window
+    // Initialize SDL_image with PNG support
+    int imgFlags = IMG_INIT_PNG;
+    if ((IMG_Init(imgFlags) & imgFlags) != imgFlags) {
+        cout << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << endl;
+        SDL_Quit();
+        return 1;
+    }
 
-    return 0; 
+    // Initialize our blank slate of a window
+    SDL_Window* window = SDL_CreateWindow("Froggun",
+                                        SDL_WINDOWPOS_CENTERED,
+                                        SDL_WINDOWPOS_CENTERED,
+                                        1280, 720, SDL_WINDOW_SHOWN);
+    if (!window) {
+        cout << "Window could not be created! SDL_Error: " << SDL_GetError() << endl;
+        IMG_Quit();
+        SDL_Quit();
+        return 1;
+    }
+
+    // initialize renderer with hardware acceleration and vsync
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        cout << "Renderer could not be created! SDL_Error: " << SDL_GetError() << endl;
+        SDL_DestroyWindow(window);
+        IMG_Quit();
+        SDL_Quit();
+        return 1;
+    }
+
+    try {
+        GameStateManager stateManager;
+        stateManager.PushState(new gameplay());
+
+        bool isRunning = true;
+        SDL_Event event;
+        Uint32 lastTime = SDL_GetTicks();
+
+        while (isRunning) {
+            // Calculate delta time
+            Uint32 currentTime = SDL_GetTicks();
+            float deltaTime = (currentTime - lastTime) / 1000.0f;
+            lastTime = currentTime;
+
+            // Handle SDL events
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    isRunning = false;
+                }
+                stateManager.HandleEvents(event);
+            }
+
+            // Update and render
+            stateManager.Update(deltaTime);
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+            stateManager.Render(renderer);
+            SDL_RenderPresent(renderer);
+        }
+    }
+    catch (const std::exception& e) {
+        cout << "Error occurred: " << e.what() << endl;
+    }
+
+    // Clean up in reverse order of creation
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    IMG_Quit();
+    SDL_Quit();
+
+    return 0;
 }
-
-
