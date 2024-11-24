@@ -16,7 +16,7 @@ SDL_INCLUDE = -I/opt/homebrew/include \
               -I/opt/homebrew/include/SDL2 \
               -I$(CURDIR)/include \
               -I$(CURDIR)/include/SDL2
-# Mac OS setup below; You can make it a windows setup by replacing /opt/homebrew/ with C:/...
+# Mac OS setup above; You can make it a windows setup by replacing /opt/homebrew/ with C:/...
 # e.g.,
 # SDL_INCLUDE = -IC:/SDL2/include \        # If installed system-wide in C:/SDL2
 #               -IC:/SDL2/include/SDL2 \
