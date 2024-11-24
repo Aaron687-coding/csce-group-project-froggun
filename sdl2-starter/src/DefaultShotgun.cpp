@@ -1,6 +1,6 @@
 #include "GunTemplate.h"
 
 
-class defShotgun : new GunTemplate {
+class defShotgun : public GunTemplate {
 
-}
+};
