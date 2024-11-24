@@ -81,7 +81,9 @@ int main(int argc, char* argv[]) {
             // Update and render
             stateManager.Update(deltaTime);
 
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+            // fill the window with a nice cool green
+            SDL_SetRenderDrawColor(renderer, 19, 141, 117, 255);
             SDL_RenderClear(renderer);
             stateManager.Render(renderer);
             SDL_RenderPresent(renderer);

@@ -3,11 +3,13 @@
 
 #include "GameState.h"
 #include "frogClass.h"
+#include <SDL2/SDL_render.h>
 
 class gameplay : public GameState {
 private:
     Frog frog;
     SDL_Texture* spritesheet;
+    SDL_Texture* tongueTip;  // Added for tongue rendering
     // Define frog states as constants
     const Frog::State frogIdle = Frog::State::IDLE;
     const Frog::State frogGrappling = Frog::State::GRAPPLING;
@@ -15,7 +17,7 @@ private:
     const Frog::State frogFalling = Frog::State::FALLING;
 
 public:
-    gameplay() : frog(1280.0f / 2, 720.0f / 2), spritesheet(nullptr) {} // Initialize frog in constructor
+    gameplay() : frog(1280.0f / 2, 720.0f / 2), spritesheet(nullptr), tongueTip(nullptr) {} // Initialize frog in constructor
 
     void Init() override {
         // We'll load the spritesheet in the first Render call since we need the renderer
@@ -85,11 +87,13 @@ public:
     }
 
     void Render(SDL_Renderer* renderer) override {
+
         // Load the spritesheet if it hasn't been loaded yet
-        if (!spritesheet) {
+        if (!spritesheet || !tongueTip) {
             //ASSET LOADING - CHANGE ASSETS HERE
             spritesheet = IMG_LoadTexture(renderer, "assets/frog.png");
-            if (!spritesheet) {
+            tongueTip = IMG_LoadTexture(renderer, "assets/tongue_tip.png");
+            if (!spritesheet || !tongueTip) {
                 SDL_Log("Failed to load texture: %s", IMG_GetError());
             }
             if (spritesheet) {
@@ -114,12 +118,48 @@ public:
             SDL_RenderCopyEx(renderer, currentTexture, &srcRect, &destRect, 
                            0.0, nullptr, flip);
         }
+
+        if (frog.getState() == Frog::State::GRAPPLING) {
+            // bright pink, same as the tongue_tip.png image
+            SDL_SetRenderDrawColor(renderer, 255, 161, 229, 255);
+                                            //   ^ r  ^ g  ^ b  ^ alpha
+            
+            // Calculate tongue start position (frog's mouth)
+            int startX = destRect.x + destRect.w/2;
+            int startY = destRect.y + destRect.h/2;
+            
+            // Get mouse position for tongue end
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            
+            // Draw multiple lines for thickness
+            for(int i = -6; i <= 6; i++) {
+                SDL_RenderDrawLine(renderer, 
+                    startX + i, startY,  // Offset start point for thickness
+                    mouseX + i, mouseY   // Offset end point for thickness
+                );
+            }
+            
+            // Render tongue tip
+            if (tongueTip) {
+                SDL_Rect tipRect = {
+                    mouseX - 8,  // Center the 16x16 tip
+                    mouseY - 8,
+                    16, 16
+                };
+                SDL_RenderCopy(renderer, tongueTip, nullptr, &tipRect);
+            }
+        }
     }
 
     void CleanUp() override {
         if (spritesheet) {
             SDL_DestroyTexture(spritesheet);
             spritesheet = nullptr;
+        }
+        if (tongueTip) {
+            SDL_DestroyTexture(tongueTip);
+            tongueTip = nullptr;
         }
     }
 };

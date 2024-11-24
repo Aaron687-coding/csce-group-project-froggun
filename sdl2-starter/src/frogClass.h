@@ -8,6 +8,10 @@
 #include <string>
 #include <cmath>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 class Frog {
 public:
     enum class State {
@@ -47,6 +51,8 @@ public:
     Direction getFacing() const;
     SDL_Texture* getCurrentTexture() const;
     bool getGrounded() const;
+    float getGrappleX() const;
+    float getGrappleY() const;
 
     // Setters
     void setGrounded(bool isGrounded);
@@ -54,7 +60,10 @@ public:
 private:
     // Position and physics
     float x, y;
-    float velocityX, velocityY, fallVelocity;
+    float velocityX, velocityY;
+    float jumpHeight;  // Current height of jump animation
+    float jumpTime;    // Current time in jump animation
+    float grappleX, grappleY; // Grapple target coordinates
     bool grounded;
     
     // Constants
@@ -62,7 +71,7 @@ private:
     static constexpr float GRAPPLE_SPEED = 1500.0f;
     static constexpr float GRAPPLE_DRAG = 0.6f;
     static constexpr float JUMP_FORCE = -500.0f;
-    static constexpr float GRAVITY = 980.0f;
+    static constexpr float GRAPPLE_THRESHOLD = 10.0f; // Distance threshold for grapple arrival
     
     // Current state
     State currentState;
