@@ -6,8 +6,8 @@ BUILD_DIR = build/debug
 CC = g++
 
 # Explicitly list source files
-SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/frogClass.cpp
-HEADERS = $(SRC_DIR)/GameState.h $(SRC_DIR)/gameplay.h $(SRC_DIR)/GameStateManager.h $(SRC_DIR)/frogClass.h
+SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/frogClass.cpp $(SRC_DIR)/DefaultShotgun.cpp
+HEADERS = $(SRC_DIR)/GameState.h $(SRC_DIR)/gameplay.h $(SRC_DIR)/GameStateManager.h $(SRC_DIR)/frogClass.h $(SRC_DIR)/GunTemplate.h
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 OBJ_NAME = play
 

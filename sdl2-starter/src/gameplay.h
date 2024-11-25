@@ -3,7 +3,9 @@
 
 #include "GameState.h"
 #include "frogClass.h"
+#include "GunTemplate.h"
 #include <SDL2/SDL_render.h>
+#include <cmath>
 
 class gameplay : public GameState {
 private:
@@ -27,32 +29,26 @@ public:
         const Uint8* keys = SDL_GetKeyboardState(nullptr);
         
         if (event.type == SDL_KEYDOWN) {
-            // Only allow movement if the frog is not grounded (jumping or grappling)
-            if (!frog.getGrounded()) {
-                int xDir = 0;
-                int yDir = 0;
+            // Initialize movement variables with zero
+            int xDir = 0;
+            int yDir = 0;
 
-                if (keys[SDL_SCANCODE_W]) {
-                    yDir = -1; // Go up (negative, since the top is zero for y)
-                }
-                if (keys[SDL_SCANCODE_S]) {
-                    yDir = 1; // Go down
-                }
-                if (keys[SDL_SCANCODE_A]) {
-                    xDir = -1; // Go left (negative, since the upper left corner is (0, 0))
-                }
-                if (keys[SDL_SCANCODE_D]) {
-                    xDir = 1; // Go right
-                }
-
-                if (xDir != 0 || yDir != 0) {
-                    frog.move(xDir, yDir); // move frog if movement is nonzero
-                }
+            if (keys[SDL_SCANCODE_W]) {
+                yDir = 1; // Go up
+            }
+            if (keys[SDL_SCANCODE_S]) {
+                yDir = -1; // Go down
+            }
+            if (keys[SDL_SCANCODE_A]) {
+                xDir = 1; // Go left
+            }
+            if (keys[SDL_SCANCODE_D]) {
+                xDir = -1; // Go right
             }
 
             // Handle jumping with space - can only jump when grounded
             if (keys[SDL_SCANCODE_SPACE] && frog.getGrounded()) {
-                frog.jump();
+                frog.jump(static_cast<float>(xDir), static_cast<float>(yDir));
             }
         }
         
@@ -120,31 +116,76 @@ public:
         }
 
         if (frog.getState() == Frog::State::GRAPPLING) {
-            // bright pink, same as the tongue_tip.png image
-            SDL_SetRenderDrawColor(renderer, 255, 161, 229, 255);
-                                            //   ^ r  ^ g  ^ b  ^ alpha
             
             // Calculate tongue start position (frog's mouth)
-            int startX = destRect.x + destRect.w/2;
-            int startY = destRect.y + destRect.h/2;
+            int xOff;
+
+            // Make sure the tongue always comes from the center of the mouth
+            if (frog.getFacing() == Frog::Direction::RIGHT)
+                xOff = 10;
+            else
+                xOff = -10;
+
+            int startX = destRect.x + destRect.w/2 + (xOff); // fine-tune the mouth with xOff and 4
+            int startY = destRect.y + destRect.h/2 + 4;
             
             // Get mouse position for tongue end
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
+
+            // Calculate direction vector
+            float dirX = mouseX - startX;
+            float dirY = mouseY - startY;
+
+            // Calculate distance
+            float distance = std::sqrt(dirX * dirX + dirY * dirY);
+
+            // Normalize direction vector
+            float normalizedDirX = dirX / distance;
+            float normalizedDirY = dirY / distance;
+
+            // Calculate perpendicular vector (rotate 90 degrees)
+            float perpX = -normalizedDirY;
+            float perpY = normalizedDirX;
             
-            // Draw multiple lines for thickness
-            for(int i = -6; i <= 6; i++) {
-                SDL_RenderDrawLine(renderer, 
-                    startX + i, startY,  // Offset start point for thickness
-                    mouseX + i, mouseY   // Offset end point for thickness
-                );
+            // Draw multiple lines for thickness with smaller spacing
+            const int NUM_LINES = 32; // Increased for smoother appearance
+            const float MAX_OFFSET = 6.0f;
+            
+            for(int i = 0; i < NUM_LINES; i++) {
+                // Use cosine distribution for smoother density
+                float t = (i / (float)(NUM_LINES - 1)) * M_PI;
+                float offset = MAX_OFFSET * std::cos(t);
+
+                // Smooth color transition
+                float colorBlend = std::abs(offset) / MAX_OFFSET;
+                if (colorBlend > 0.67f) {
+                    // outline color (warm brown)
+                    SDL_SetRenderDrawColor(renderer, 154, 76, 0, 255);
+                } else {
+                    // bright pink
+                    SDL_SetRenderDrawColor(renderer, 255, 161, 229, 255);
+                }
+
+                // Calculate offset points using perpendicular vector
+                int startOffsetX = startX + static_cast<int>(perpX * offset);
+                int startOffsetY = startY + static_cast<int>(perpY * offset);
+                int endOffsetX = frog.getGrappleX() + static_cast<int>(perpX * offset);
+                int endOffsetY = frog.getGrappleY() + static_cast<int>(perpY * offset);
+
+                // Draw slightly thicker line for better coverage
+                for(int j = 0; j < 2; j++) {
+                    SDL_RenderDrawLine(renderer, 
+                        startOffsetX + j, startOffsetY,
+                        endOffsetX + j, endOffsetY);
+                }
             }
             
             // Render tongue tip
             if (tongueTip) {
                 SDL_Rect tipRect = {
-                    mouseX - 8,  // Center the 16x16 tip
-                    mouseY - 8,
+                    static_cast<int>(frog.getGrappleX()) - 8,  // Center the 16x16 tip
+                    static_cast<int>(frog.getGrappleY()) - 8,
                     16, 16
                 };
                 SDL_RenderCopy(renderer, tongueTip, nullptr, &tipRect);

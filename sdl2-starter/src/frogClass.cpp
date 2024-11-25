@@ -35,40 +35,54 @@ void Frog::addAnimation(State state, SDL_Texture* spritesheet, int frameWidth,
 // Update function
 void Frog::update(float deltaTime) {
     const float JUMP_DURATION = 0.2f; // Total jump duration in seconds
-    const float MAX_JUMP_HEIGHT = 50.0f; // Maximum height of the jump bobbing effect 
+    const float MAX_JUMP_HEIGHT = 80.0f; // Maximum height of the jump bobbing effect 
 
-    // Update position based on velocity only during jump or grapple
-    if (currentState == State::JUMPING || currentState == State::GRAPPLING) {
-        x += velocityX * deltaTime;
-        y += velocityY * deltaTime;
+    // Update position based on velocity
+    x += velocityX * deltaTime;
+    y += velocityY * deltaTime;
 
-        if (currentState == State::JUMPING) {
-            // Update jump time
-            jumpTime += deltaTime;
-            
-            // Calculate jump height using a sine wave for smooth bobbing
-            jumpHeight = MAX_JUMP_HEIGHT * std::sin((jumpTime / JUMP_DURATION) * M_PI);
-
-            // Check if jump is complete
-            if (jumpTime >= JUMP_DURATION) {
-                jumpTime = 0;
-                jumpHeight = 0;
-                currentState = State::IDLE;
-                velocityX = 0;
-                velocityY = 0;
-                grounded = true;
-            }
-        }
+    // Handle jump physics
+    if (currentState == State::JUMPING || 
+        (currentState == State::GRAPPLING && jumpTime > 0)) {
+        // Update jump time
+        jumpTime += deltaTime;
         
-        // If the frog is close enough to its target during grapple, stop moving
-        if (currentState == State::GRAPPLING) {
-            float distX = std::abs(x - grappleX);
-            float distY = std::abs(y - grappleY);
-            if (distX < GRAPPLE_THRESHOLD && distY < GRAPPLE_THRESHOLD) {
-                x = grappleX; // Snap to exact position
-                y = grappleY;
-                stopMoving();
-            }
+        // Calculate jump height using a sine wave for smooth bobbing
+        jumpHeight = MAX_JUMP_HEIGHT * std::sin((jumpTime / JUMP_DURATION) * M_PI);
+
+        // Only reset jump if we're not grappling
+        if (jumpTime >= JUMP_DURATION && currentState != State::GRAPPLING) {
+            jumpTime = 0;
+            jumpHeight = 0;
+            currentState = State::IDLE;
+            velocityX = 0;
+            velocityY = 0;
+            grounded = true;
+        }
+    }
+    
+    // Handle grapple physics
+    if (currentState == State::GRAPPLING) {
+        float distX = std::abs(x - grappleX);
+        float distY = std::abs(y - grappleY);
+        
+        // Calculate current direction to target
+        float dirX = grappleX - x;
+        float dirY = grappleY - y;
+        float distance = std::sqrt(dirX * dirX + dirY * dirY);
+        
+        // Update velocities to maintain course to target
+        if (distance > 0) {
+            float speedMultiplier = (jumpTime > 0) ? 2.5f : 1.0f;
+            velocityX = (dirX / distance) * GRAPPLE_SPEED * speedMultiplier;
+            velocityY = (dirY / distance) * GRAPPLE_SPEED * speedMultiplier;
+        }
+
+        // Check if we've reached the target
+        if (distX < GRAPPLE_THRESHOLD && distY < GRAPPLE_THRESHOLD) {
+            x = grappleX; // Snap to exact position
+            y = grappleY;
+            stopMoving();
         }
     }
 
@@ -100,14 +114,9 @@ void Frog::grapple(int targetX, int targetY) {
     // Calculate distance to normalize the direction
     float distance = std::sqrt(dirX * dirX + dirY * dirY);
     
-    float speedMultiplier = 1.0f;
-    // If grappling during a jump, increase speed
-    if (currentState == State::JUMPING) {
-        speedMultiplier = 1.5f; // 50% speed boost when combo-ing with jump
-    }
-    
-    // Normalize the direction vector and apply grapple speed
+    // Set initial velocities based on direction
     if (distance > 0) {  // Prevent division by zero
+        float speedMultiplier = (currentState == State::JUMPING) ? 2.5f : 1.0f;
         velocityX = (dirX / distance) * GRAPPLE_SPEED * speedMultiplier;
         velocityY = (dirY / distance) * GRAPPLE_SPEED * speedMultiplier;
     }
@@ -119,29 +128,33 @@ void Frog::grapple(int targetX, int targetY) {
         facing = Direction::LEFT;
     }
     
+    // Maintain jump state if we're jumping
+    if (currentState != State::JUMPING) {
+        jumpTime = 0;
+        jumpHeight = 0;
+    }
+    
     currentState = State::GRAPPLING;
 }
 
-void Frog::jump() {
+void Frog::jump(float directionX, float directionY) {
     if (grounded || currentState == State::GRAPPLING) {
-        // Get the current movement direction from input
-        float dirX = velocityX != 0 ? velocityX / std::abs(velocityX) : 0;
-        float dirY = velocityY != 0 ? velocityY / std::abs(velocityY) : 0;
-
-        // If no direction is held, use facing direction for horizontal movement
-        if (dirX == 0 && dirY == 0) {
-            dirX = (facing == Direction::RIGHT) ? 1.0f : -1.0f;
+        // Update facing direction based on horizontal movement
+        if (directionX > 0) {
+            facing = Direction::LEFT;
+        } else if (directionX < 0) {
+            facing = Direction::RIGHT;
         }
 
         // Normalize diagonal movement
-        if (dirX != 0 && dirY != 0) {
+        if (directionX != 0 && directionY != 0) {
             float normalizer = 1.0f / std::sqrt(2.0f);
-            dirX *= normalizer;
-            dirY *= normalizer;
+            directionX *= normalizer;
+            directionY *= normalizer;
         }
 
-        velocityX = dirX * JUMP_FORCE;
-        velocityY = dirY * JUMP_FORCE;
+        velocityX = directionX * JUMP_FORCE + directionX * MOVE_SPEED;
+        velocityY = directionY * JUMP_FORCE + directionY * MOVE_SPEED;
 
         grounded = false;
         currentState = State::JUMPING;
@@ -149,36 +162,16 @@ void Frog::jump() {
     }
 }
 
-void Frog::move(int directionX, int directionY) {
-    // Only allow movement input during jump
-    if (currentState == State::JUMPING) {
-        // Store the movement direction for the next jump
-        if (directionX != 0 || directionY != 0) {
-            // Normalize diagonal movement
-            if (directionX != 0 && directionY != 0) {
-                float normalizer = 1.0f / std::sqrt(2.0f);
-                velocityX = directionX * MOVE_SPEED * normalizer;
-                velocityY = directionY * MOVE_SPEED * normalizer;
-            } else {
-                velocityX = directionX * MOVE_SPEED;
-                velocityY = directionY * MOVE_SPEED;
-            }
-
-            // Update facing direction based on horizontal movement
-            if (directionX > 0) {
-                facing = Direction::RIGHT;
-            } else if (directionX < 0) {
-                facing = Direction::LEFT;
-            }
-        }
-    }
-}
-
 void Frog::stopMoving() {
-    velocityX = 0;
-    velocityY = 0;
-    grounded = true;
-    currentState = State::IDLE;
+    // Stop moving if not jumping
+    if (currentState != State::FALLING && currentState != State::JUMPING) {
+        velocityX = 0;
+        velocityY = 0;
+        grounded = true;
+        currentState = State::IDLE;
+        jumpTime = 0;
+        jumpHeight = 0;
+    }
 }
 
 // Getters

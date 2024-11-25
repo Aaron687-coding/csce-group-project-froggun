@@ -40,8 +40,7 @@ public:
 
     // Movement functions
     void grapple(int targetX, int targetY);
-    void jump();
-    void move(int directionX, int directionY);
+    void jump(float directionX, float directionY);
     void stopMoving();
 
     // Getters
@@ -68,7 +67,7 @@ private:
     
     // Constants
     static constexpr float MOVE_SPEED = 300.0f;
-    static constexpr float GRAPPLE_SPEED = 1500.0f;
+    static constexpr float GRAPPLE_SPEED = 500.0f;
     static constexpr float GRAPPLE_DRAG = 0.6f;
     static constexpr float JUMP_FORCE = -500.0f;
     static constexpr float GRAPPLE_THRESHOLD = 10.0f; // Distance threshold for grapple arrival
