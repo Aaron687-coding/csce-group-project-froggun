@@ -2,8 +2,8 @@
 #define GAMEPLAY_H
 
 #include "GameState.h"
-#include "frogClass.h"
-#include "GunTemplate.h"
+#include "frog/frogClass.h"
+#include "guns/GunTemplate.h"
 #include <SDL2/SDL_render.h>
 #include <cmath>
 
@@ -17,6 +17,8 @@ private:
     const Frog::State frogGrappling = Frog::State::GRAPPLING;
     const Frog::State frogJumping = Frog::State::JUMPING;
     const Frog::State frogFalling = Frog::State::FALLING;
+
+    DefShotgun shotgun;
 
 public:
     gameplay() : frog(1280.0f / 2, 720.0f / 2), spritesheet(nullptr), tongueTip(nullptr) {} // Initialize frog in constructor

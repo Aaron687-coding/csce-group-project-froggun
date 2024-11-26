@@ -24,7 +24,8 @@ public:
         IDLE,
         AIM,
         FIRE,
-        RELOAD
+        RELOAD, 
+        CHARGING // for railguns and the like in the future
     };
 
     // Constructor

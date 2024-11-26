@@ -42,8 +42,7 @@ void Frog::update(float deltaTime) {
     y += velocityY * deltaTime;
 
     // Handle jump physics
-    if (currentState == State::JUMPING || 
-        (currentState == State::GRAPPLING && jumpTime > 0)) {
+    if (currentState == State::JUMPING) {
         // Update jump time
         jumpTime += deltaTime;
         

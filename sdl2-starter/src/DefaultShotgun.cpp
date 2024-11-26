@@ -9,6 +9,4 @@ class defShotgun : public GunTemplate {
     void updateBullets() override {
 
     };
-
-    
 };
