@@ -3,9 +3,15 @@
 
 #include "GameState.h"
 #include "frog/frogClass.h"
-#include "guns/GunTemplate.h"
-#include <SDL2/SDL_render.h>
+#include "guns/DefaultShotgun.h"
+#include <SDL2/SDL.h>
 #include <cmath>
+
+// Forward declare SDL_image functions we need
+extern "C" {
+    SDL_Texture* IMG_LoadTexture(SDL_Renderer* renderer, const char* file);
+    const char* IMG_GetError(void);
+}
 
 class gameplay : public GameState {
 private:
@@ -18,10 +24,10 @@ private:
     const Frog::State frogJumping = Frog::State::JUMPING;
     const Frog::State frogFalling = Frog::State::FALLING;
 
-    DefShotgun shotgun;
+    DefaultShotgun* shotgun;
 
 public:
-    gameplay() : frog(1280.0f / 2, 720.0f / 2), spritesheet(nullptr), tongueTip(nullptr) {} // Initialize frog in constructor
+    gameplay() : frog(1280.0f / 2, 720.0f / 2), spritesheet(nullptr), tongueTip(nullptr), shotgun(nullptr) {} // Initialize frog in constructor
 
     void Init() override {
         // We'll load the spritesheet in the first Render call since we need the renderer
@@ -52,13 +58,27 @@ public:
             if (keys[SDL_SCANCODE_SPACE] && frog.getGrounded()) {
                 frog.jump(static_cast<float>(xDir), static_cast<float>(yDir));
             }
+
+            // Handle reload with R key
+            if (keys[SDL_SCANCODE_R] && shotgun) {
+                shotgun->reload();  // This will handle both state change and reload logic
+            }
         }
         
-        // Handle mouse events for grappling
-        if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+        // Handle mouse events for grappling and shooting
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
-            frog.grapple(mouseX, mouseY);
+            
+            // Right click to grapple
+            if (event.button.button == SDL_BUTTON_RIGHT) {
+                frog.grapple(mouseX, mouseY);
+            // Left click to shoot
+            } else if (event.button.button == SDL_BUTTON_LEFT && shotgun) {
+                // Get frog position for shooting
+                SDL_Rect frogBox = frog.getCollisionBox();
+                shotgun->shoot(frogBox.x + frogBox.w/2, frogBox.y + frogBox.h/2, mouseX, mouseY);
+            }
         }
         
         // Stop movement when keys are released
@@ -74,6 +94,12 @@ public:
         // Update frog's position and state
         frog.update(deltaTime);
         
+        // Update shotgun
+        if (shotgun) {
+            shotgun->update(deltaTime);
+            shotgun->updateBullets();
+        }
+        
         // Get the current collision box
         SDL_Rect frogBox = frog.getCollisionBox();
         
@@ -85,7 +111,6 @@ public:
     }
 
     void Render(SDL_Renderer* renderer) override {
-
         // Load the spritesheet if it hasn't been loaded yet
         if (!spritesheet || !tongueTip) {
             //ASSET LOADING - CHANGE ASSETS HERE
@@ -99,6 +124,11 @@ public:
                 frog.addAnimation(frogGrappling, spritesheet, 16, 14, 1, 0);
                 frog.addAnimation(frogJumping, spritesheet, 16, 14, 1, 0);
                 frog.addAnimation(frogFalling, spritesheet, 16, 14, 1, 0);
+            }
+            
+            // Initialize shotgun after renderer is available
+            if (!shotgun) {
+                shotgun = new DefaultShotgun(renderer);
             }
         }
 
@@ -118,7 +148,6 @@ public:
         }
 
         if (frog.getState() == Frog::State::GRAPPLING) {
-            
             // Calculate tongue start position (frog's mouth)
             int xOff;
 
@@ -128,7 +157,7 @@ public:
             else
                 xOff = -10;
 
-            int startX = destRect.x + destRect.w/2 + (xOff); // fine-tune the mouth with xOff and 4
+            int startX = destRect.x + destRect.w/2 + (xOff);
             int startY = destRect.y + destRect.h/2 + 4;
             
             // Get mouse position for tongue end
@@ -151,31 +180,25 @@ public:
             float perpY = normalizedDirX;
             
             // Draw multiple lines for thickness with smaller spacing
-            const int NUM_LINES = 32; // Increased for smoother appearance
+            const int NUM_LINES = 32;
             const float MAX_OFFSET = 6.0f;
             
             for(int i = 0; i < NUM_LINES; i++) {
-                // Use cosine distribution for smoother density
                 float t = (i / (float)(NUM_LINES - 1)) * M_PI;
                 float offset = MAX_OFFSET * std::cos(t);
 
-                // Smooth color transition
                 float colorBlend = std::abs(offset) / MAX_OFFSET;
                 if (colorBlend > 0.67f) {
-                    // outline color (warm brown)
                     SDL_SetRenderDrawColor(renderer, 154, 76, 0, 255);
                 } else {
-                    // bright pink
                     SDL_SetRenderDrawColor(renderer, 255, 161, 229, 255);
                 }
 
-                // Calculate offset points using perpendicular vector
                 int startOffsetX = startX + static_cast<int>(perpX * offset);
                 int startOffsetY = startY + static_cast<int>(perpY * offset);
                 int endOffsetX = frog.getGrappleX() + static_cast<int>(perpX * offset);
                 int endOffsetY = frog.getGrappleY() + static_cast<int>(perpY * offset);
 
-                // Draw slightly thicker line for better coverage
                 for(int j = 0; j < 2; j++) {
                     SDL_RenderDrawLine(renderer, 
                         startOffsetX + j, startOffsetY,
@@ -186,12 +209,18 @@ public:
             // Render tongue tip
             if (tongueTip) {
                 SDL_Rect tipRect = {
-                    static_cast<int>(frog.getGrappleX()) - 8,  // Center the 16x16 tip
+                    static_cast<int>(frog.getGrappleX()) - 8,
                     static_cast<int>(frog.getGrappleY()) - 8,
                     16, 16
                 };
                 SDL_RenderCopy(renderer, tongueTip, nullptr, &tipRect);
             }
+        }
+
+        // Finally, render the shotgun
+        // Render bullet trails and shells
+        if (shotgun) {
+            shotgun->render(renderer, destRect.x + destRect.w/2, destRect.y + destRect.h/2);
         }
     }
 
@@ -203,6 +232,10 @@ public:
         if (tongueTip) {
             SDL_DestroyTexture(tongueTip);
             tongueTip = nullptr;
+        }
+        if (shotgun) {
+            delete shotgun;
+            shotgun = nullptr;
         }
     }
 };

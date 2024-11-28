@@ -22,7 +22,6 @@ public:
 
     enum class gunState {
         IDLE,
-        AIM,
         FIRE,
         RELOAD, 
         CHARGING // for railguns and the like in the future
@@ -30,34 +29,27 @@ public:
 
     // Constructor
     GunTemplate() : currentState(gunState::IDLE), reloadTime(1.0f), currentReloadTime(0.0f),
-                    fireRate(0.5f), lastShotTime(0.0f), maxAmmo(10), currentAmmo(10),
-                    nextBulletId(0) {}
+                    fireRate(0.5f), lastShotTime(0.0f), maxAmmo(10), currentAmmo(0),
+                    nextBulletId(0) {
+        // Initialize currentAmmo to maxAmmo
+        currentAmmo = maxAmmo;
+    }
     
     // Destructor
     virtual ~GunTemplate() = default;
 
     // Pure virtual functions that must be implemented by derived classes
-    virtual void shoot() = 0;
+    virtual void shoot(int startX, int startY, int aimX, int aimY) = 0;
     virtual void updateBullets() = 0;
     virtual void setGunState(gunState state) = 0;
     
-    // Virtual functions with default implementations
-    virtual void aim(int targetX, int targetY) {
-        if (currentState == gunState::IDLE) {
-            currentState = gunState::AIM;
-            aimTargetX = targetX;
-            aimTargetY = targetY;
-        }
-    }
-
     // change state to reload
     virtual void reload() {
         if (currentAmmo < maxAmmo && currentState != gunState::RELOAD) {
-            currentState = gunState::RELOAD;
+            setGunState(gunState::RELOAD);  // Use setGunState instead of directly changing state
             currentReloadTime = reloadTime;
         }
     }
-
     
     virtual void update(float deltaTime) {
         // Update reload timer
@@ -65,7 +57,7 @@ public:
             currentReloadTime -= deltaTime;
             if (currentReloadTime <= 0) {
                 currentAmmo = maxAmmo;
-                currentState = gunState::IDLE;
+                setGunState(gunState::IDLE);  // Use setGunState here too
             }
         }
 
@@ -101,7 +93,10 @@ public:
     
     // Setters
     void setFireRate(float rate) { fireRate = rate; }
-    void setMaxAmmo(int ammo) { maxAmmo = ammo; }
+    void setMaxAmmo(int ammo) { 
+        maxAmmo = ammo;
+        if (currentAmmo > maxAmmo) currentAmmo = maxAmmo;
+    }
     void setReloadTime(float time) { reloadTime = time; }
     void setBulletSpeed(int speed) { defaultBulletSpeed = speed; }
     void setBulletDamage(int damage) { defaultBulletDamage = damage; }
@@ -125,10 +120,6 @@ protected:
     int defaultBulletDamage = 1;
     float defaultBulletLifetime = 2.0f;
     
-    // Aiming properties
-    int aimTargetX = 0;
-    int aimTargetY = 0;
-
     // Helper function to create a new bullet
     void addBullet(int startX, int startY, int targetX, int targetY) {
         bullet newBullet;

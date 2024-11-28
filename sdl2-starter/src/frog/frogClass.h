@@ -2,7 +2,6 @@
 #define FROG_CLASS_H
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <memory>
 #include <unordered_map>
 #include <string>
@@ -11,6 +10,12 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+// Forward declare SDL_image functions we need
+extern "C" {
+    SDL_Texture* IMG_LoadTexture(SDL_Renderer* renderer, const char* file);
+    const char* IMG_GetError(void);
+}
 
 class Frog {
 public:
