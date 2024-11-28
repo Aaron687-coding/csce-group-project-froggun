@@ -6,8 +6,23 @@ BUILD_DIR = build/debug
 CC = g++
 
 # Explicitly list source files
-SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/frog/frogClass.cpp $(SRC_DIR)/guns/DefaultShotgun.cpp
-HEADERS = $(SRC_DIR)/GameState.h $(SRC_DIR)/gameplay.h $(SRC_DIR)/GameStateManager.h $(SRC_DIR)/frog/frogClass.h $(SRC_DIR)/guns/GunTemplate.h $(SRC_DIR)/guns/DefaultShotgun.h
+SRCS = $(SRC_DIR)/main.cpp \
+       $(SRC_DIR)/frog/frogClass.cpp \
+       $(SRC_DIR)/guns/DefaultShotgun.cpp \
+       $(SRC_DIR)/turtle/turtleStruct.cpp \
+       $(SRC_DIR)/turtle/turtBullet/bulletStruct.cpp \
+       $(SRC_DIR)/wasp/waspStruct.cpp
+
+HEADERS = $(SRC_DIR)/GameState.h \
+          $(SRC_DIR)/gameplay.h \
+          $(SRC_DIR)/GameStateManager.h \
+          $(SRC_DIR)/frog/frogClass.h \
+          $(SRC_DIR)/guns/GunTemplate.h \
+          $(SRC_DIR)/guns/DefaultShotgun.h \
+          $(SRC_DIR)/turtle/turtleStruct.h \
+          $(SRC_DIR)/turtle/turtBullet/bulletStruct.h \
+          $(SRC_DIR)/wasp/waspStruct.h
+
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 OBJ_NAME = play
 
@@ -40,6 +55,9 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/frog
 	mkdir -p $(BUILD_DIR)/guns
+	mkdir -p $(BUILD_DIR)/turtle
+	mkdir -p $(BUILD_DIR)/turtle/turtBullet
+	mkdir -p $(BUILD_DIR)/wasp
 
 # Copy assets to build directory
 copy_assets:
