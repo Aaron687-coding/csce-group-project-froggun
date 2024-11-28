@@ -1,0 +1,4 @@
+﻿  ConsoleApplication1.cpp
+D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp(31,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp(51,24): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  ConsoleApplication1.vcxproj -> D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\x64\Debug\ConsoleApplication1.exe

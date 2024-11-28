@@ -1,0 +1,8 @@
+﻿  ConsoleApplication1.cpp
+D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp(40,38): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp(44,22): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp(45,22): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp(75,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp(216,74): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+D:\School\CSCE A201\Project Contrib\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp(341,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  ConsoleApplication1.vcxproj -> D:\School\CSCE A201\Project Contrib\ConsoleApplication1\x64\Debug\ConsoleApplication1.exe
