@@ -1,0 +1,11 @@
+﻿  turtleStruct.cpp
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(31,34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(32,34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(36,38): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(37,38): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(59,27): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(60,27): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(110,29): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(119,69): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\ConsoleApplication1\turtleStruct.cpp(161,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  ConsoleApplication1.vcxproj -> D:\School\CSCE A201\csce-group-project-Fisher\ConsoleApplication1\x64\Debug\ConsoleApplication1.exe
