@@ -6,27 +6,25 @@ BUILD_DIR = build/debug
 CC = g++
 
 # Explicitly list source files
-SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/frogClass.cpp
-HEADERS = $(SRC_DIR)/GameState.h $(SRC_DIR)/gameplay.h $(SRC_DIR)/GameStateManager.h $(SRC_DIR)/frogClass.h
+SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/frog/frogClass.cpp $(SRC_DIR)/guns/DefaultShotgun.cpp
+HEADERS = $(SRC_DIR)/GameState.h $(SRC_DIR)/gameplay.h $(SRC_DIR)/GameStateManager.h $(SRC_DIR)/frog/frogClass.h $(SRC_DIR)/guns/GunTemplate.h $(SRC_DIR)/guns/DefaultShotgun.h
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 OBJ_NAME = play
 
 # SDL paths - use system paths first, then local paths
 SDL_INCLUDE = -I/opt/homebrew/include \
               -I/opt/homebrew/include/SDL2 \
+              -I/opt/homebrew/Cellar/sdl2_image/2.8.2_2/include/SDL2 \
               -I$(CURDIR)/include \
               -I$(CURDIR)/include/SDL2
-# Mac OS setup below; You can make it a windows setup by replacing /opt/homebrew/ with C:/...
-# e.g.,
-# SDL_INCLUDE = -IC:/SDL2/include \        # If installed system-wide in C:/SDL2
-#               -IC:/SDL2/include/SDL2 \
-#               -I$(CURDIR)/include \      # Local project includes (same as current)
-#               -I$(CURDIR)/include/SDL2 
 
 # Compiler and linker flags
 INCLUDE_PATHS = -I$(SRC_DIR) $(SDL_INCLUDE)
-LIBRARY_PATHS = -L/opt/homebrew/lib
-COMPILER_FLAGS = -std=c++14 -Wall -O0 -g
+LIBRARY_PATHS = -L/opt/homebrew/lib \
+                -L/opt/homebrew/Cellar/sdl2_image/2.8.2_2/lib \
+                -L$(CURDIR)/lib/SDL2
+
+COMPILER_FLAGS = -std=c++14 -Wall -O0 -g -arch arm64
 LINKER_FLAGS = -lSDL2 -lSDL2_image -Wl,-rpath,/opt/homebrew/lib
 
 # Debug information
@@ -40,6 +38,8 @@ $(info Headers: $(HEADERS))
 # Make sure build directory exists
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)/frog
+	mkdir -p $(BUILD_DIR)/guns
 
 # Copy assets to build directory
 copy_assets:
@@ -49,7 +49,7 @@ copy_assets:
 # Compile source files into object files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	@echo "Creating build directory..."
-	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(@D)
 	@echo "Compiling $<..."
 	$(CC) $(COMPILER_FLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
