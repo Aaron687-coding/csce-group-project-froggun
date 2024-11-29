@@ -1,12 +1,14 @@
+#ifndef GAME_STATE_MANAGER_H
+#define GAME_STATE_MANAGER_H
+
 /*********************************************
 Author: Aaron Chakine
 Description: The Game State Manager class. Handles switching between states, and running current states.
 
 Subsequent changes:
 Format: [Author] - [Changes]
-- 
+- Added header guards
 *********************************************/
-
 
 #include <stack>
 #include "GameState.h"
@@ -70,3 +72,5 @@ public:
         }
     }
 };
+
+#endif // GAME_STATE_MANAGER_H

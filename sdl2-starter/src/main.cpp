@@ -5,16 +5,16 @@ Description: The main loop, which runs game states using a state manager from th
 
 Subsequent changes:
 Format: [Author] - [Changes]
-- 
+- Added terrain generation and menu state with simple text rendering
+- Added SDL_ttf for font rendering
 *********************************************/
-
-// SCREENSIZE IS 1280x720
 
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "GameStateManager.h"
-#include "gameplay.h"
+#include "terrain/MenuState.h"
 
 using namespace std;
 
@@ -33,13 +33,21 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Initialize our blank slate of a window
-    SDL_Window* window = SDL_CreateWindow("Froggun",
+    // Initialize SDL_ttf
+    if (TTF_Init() < 0) {
+        cout << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << endl;
+        IMG_Quit();
+        SDL_Quit();
+        return 1;
+    }
+
+    SDL_Window* window = SDL_CreateWindow("FrogGun",
                                         SDL_WINDOWPOS_CENTERED,
                                         SDL_WINDOWPOS_CENTERED,
                                         1280, 720, SDL_WINDOW_SHOWN);
     if (!window) {
         cout << "Window could not be created! SDL_Error: " << SDL_GetError() << endl;
+        TTF_Quit();
         IMG_Quit();
         SDL_Quit();
         return 1;
@@ -51,6 +59,7 @@ int main(int argc, char* argv[]) {
     if (!renderer) {
         cout << "Renderer could not be created! SDL_Error: " << SDL_GetError() << endl;
         SDL_DestroyWindow(window);
+        TTF_Quit();
         IMG_Quit();
         SDL_Quit();
         return 1;
@@ -58,7 +67,7 @@ int main(int argc, char* argv[]) {
 
     try {
         GameStateManager stateManager;
-        stateManager.PushState(new gameplay());
+        stateManager.PushState(new MenuState(stateManager));
 
         bool isRunning = true;
         SDL_Event event;
@@ -81,9 +90,8 @@ int main(int argc, char* argv[]) {
             // Update and render
             stateManager.Update(deltaTime);
 
-
-            // fill the window with a nice cool green
-            SDL_SetRenderDrawColor(renderer, 19, 141, 117, 255);
+            // Clear screen with black background
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
             stateManager.Render(renderer);
             SDL_RenderPresent(renderer);
@@ -96,6 +104,7 @@ int main(int argc, char* argv[]) {
     // Clean up in reverse order of creation
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 

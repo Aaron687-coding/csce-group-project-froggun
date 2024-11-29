@@ -6,11 +6,13 @@
 #include "turtle/turtleStruct.h"
 #include "wasp/waspStruct.h"
 #include "guns/DefaultShotgun.h"
+#include "terrain/TerrainGrid.h"
 #include <SDL2/SDL.h>
 #include <cmath>
 #include <vector>
 #include <string>
 #include <iostream>
+#include <memory>
 
 // Forward declare SDL_image functions we need
 extern "C" {
@@ -43,6 +45,8 @@ private:
     const Frog::State frogGrappling = Frog::State::GRAPPLING;
     const Frog::State frogJumping = Frog::State::JUMPING;
     const Frog::State frogFalling = Frog::State::FALLING;
+
+    std::shared_ptr<TerrainGrid> terrain;
 
     // Lazily copy Fisher's functions into the class
     void renderEntities(SDL_Renderer* renderer, const std::vector<Wasp>& wasps, const std::vector<Turtle>& turtles, const std::vector<Bullet>& bullets)
@@ -111,7 +115,8 @@ private:
             std::cerr << "Failed to load texture: " << IMG_GetError() << std::endl;
         }
         return newTexture;
-    }    
+    }
+
 
 public:
     gameplay() : frog(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f), spritesheet(nullptr), tongueTip(nullptr), shotgun(nullptr) {} // Initialize frog in constructor
@@ -119,6 +124,10 @@ public:
     std::vector<Wasp> wasps;
     std::vector<Turtle> turtles;
     std::vector<Bullet> bullets;
+
+    void setTerrain(std::shared_ptr<TerrainGrid> t) {
+        terrain = t;
+    }
 
     void Init() override {
         // We'll load the spritesheet in the first Render call since we need the renderer
@@ -267,6 +276,20 @@ public:
             if (!shotgun) {
                 shotgun = new DefaultShotgun(renderer);
             }
+
+            // Create terrain if not provided
+            if (!terrain) {
+                terrain = std::make_shared<TerrainGrid>(renderer, 64, 36, 20);
+                terrain->generate();
+            }
+        }
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Render terrain first as background
+        if (terrain) {
+            terrain->render(renderer);
         }
 
         // Get the current animation frame and texture
@@ -353,6 +376,8 @@ public:
                 SDL_RenderCopy(renderer, tongueTip, nullptr, &tipRect);
             }
         }
+        // Render enemies
+        renderEntities(renderer, wasps, turtles, bullets);
 
         // Finally, render the shotgun
         // Render bullet trails and shells
@@ -360,8 +385,6 @@ public:
             shotgun->render(renderer, destRect.x + destRect.w/2, destRect.y + destRect.h/2);
         }
         
-        // Render enemies
-        renderEntities(renderer, wasps, turtles, bullets);
     }
 
     void CleanUp() override {
@@ -376,6 +399,19 @@ public:
         if (shotgun) {
             delete shotgun;
             shotgun = nullptr;
+        }
+
+        if (waspTexture) {
+            delete waspTexture;
+            waspTexture = nullptr;
+        }
+        if (turtleTexture) {
+            delete turtleTexture;
+            turtleTexture = nullptr;
+        }
+        if (bulletTexture) {
+            delete bulletTexture;
+            bulletTexture = nullptr;
         }
     }
 };

@@ -15,7 +15,7 @@ DefaultShotgun::DefaultShotgun(SDL_Renderer* renderer) : GunTemplate() {
     reloadTexture = IMG_LoadTexture(renderer, "assets/shotgunReload.png");
     shellTexture = IMG_LoadTexture(renderer, "assets/medShell.png");
     shellIcon = IMG_LoadTexture(renderer, "assets/shellIcon.png");
-    shellIconEmpty = IMG_LoadTexture(renderer, "assets/shellIconEmpty.png");
+    shellIconEmpty = IMG_LoadTexture(renderer, "assets/noShellIcon.png");
     
     if (!gunTexture || !reloadTexture || !shellTexture) {
         SDL_Log("Failed to load shotgun textures: %s", IMG_GetError());

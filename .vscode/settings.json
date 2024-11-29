@@ -54,7 +54,9 @@
         "variant": "cpp",
         "vector": "cpp",
         "algorithm": "cpp",
-        "__config": "cpp"
+        "__config": "cpp",
+        "charconv": "cpp",
+        "forward_list": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.intelliSenseEngine": "default",
