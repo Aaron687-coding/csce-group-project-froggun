@@ -56,7 +56,9 @@
         "algorithm": "cpp",
         "__config": "cpp",
         "charconv": "cpp",
-        "forward_list": "cpp"
+        "forward_list": "cpp",
+        "random": "cpp",
+        "chrono": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.intelliSenseEngine": "default",

@@ -22,9 +22,11 @@ DefaultShotgun::DefaultShotgun(SDL_Renderer* renderer) : GunTemplate() {
     }
     
     // Initialize gun position and size
-    gunRect = {0, 0, 64, 32};  // Adjust size based on your sprite
-    gunOffset = {0, 20};       // Offset from frog's center
-    gunPivot = {16, 16};       // Pivot point for rotation (adjust based on sprite)
+    int width = 39 * 1.5;   // actual size * scale
+    int height = 22 * 1.5;   // actual size * scale
+    gunRect = {0, 0, width, height};  // Adjust size based on your sprite
+    gunOffset = {0, 12};       // Offset from frog's center
+    gunPivot = {10, 10};       // Pivot point for rotation (adjust based on sprite)
     gunRotation = 0.0f;
     
     // Initialize random number generator
@@ -248,7 +250,7 @@ void DefaultShotgun::ejectShell() {
     shell.pos = {gunRect.x + gunPivot.x, gunRect.y + gunPivot.y, 16, 8};  // Eject from gun position
     
     // Random velocities for natural movement
-    std::uniform_real_distribution<float> velDist(-100.0f, -50.0f);
+    std::uniform_real_distribution<float> velDist(-100.0f, 100.0f);
     shell.velocityX = velDist(rng);
     shell.velocityY = -200.0f;  // Initial upward velocity
     

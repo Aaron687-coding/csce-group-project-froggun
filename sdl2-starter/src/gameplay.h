@@ -1,3 +1,26 @@
+/*********************************************
+Author: Aaron Chakine
+Description: The main loop, which runs game states using a state manager from the GameStateManager class. 
+             See GameStateManager.h for state manager details and GameState.h for state details.
+
+Subsequent changes:
+Format: [Author] - [Changes]
+- Added terrain generation and menu state with simple text rendering
+- Added SDL_ttf for font rendering
+
+Memory & Health Bar Fixes (2024):
+1. Added proper copy semantics to healthBar class to prevent memory corruption during vector operations
+2. Added visibility control to health bars to prevent render issues
+3. Added pendingRemoval state to entities to properly handle cleanup
+4. Modified entity spawn functions to use reserve() and emplace_back for better memory management
+5. Added proper renderer management through currentRenderer member
+6. Fixed health bar initialization timing to ensure proper setup before use
+7. Added proper state handling for entity removal to prevent premature cleanup
+8. Fixed render command conflicts by properly managing health bar visibility states
+9. Improved entity lifecycle management with better state transitions
+10. Added safety checks for renderer availability in Update and Render methods
+*********************************************/
+
 #ifndef GAMEPLAY_H
 #define GAMEPLAY_H
 
@@ -7,6 +30,8 @@
 #include "wasp/waspStruct.h"
 #include "guns/DefaultShotgun.h"
 #include "terrain/TerrainGrid.h"
+#include "terrainElem.h"
+#include "RainSystem.h"
 #include <SDL2/SDL.h>
 #include <cmath>
 #include <vector>
@@ -24,85 +49,31 @@ class gameplay : public GameState {
 private:
     const int SCREEN_WIDTH = 1280;
     const int SCREEN_HEIGHT = 720;
-
-    // Consult with your timer for frame count now :D
-    float timer = 0;
-    int waspCounter = 0;
-    int turtleCounter = 0;
-    const int WASP_SPAWN_RATE = 2; // Every 2 seconds
-    const int TURTLE_SPAWN_RATE = 5; // Every five seconds
-    const int WASP_CHASE_SPEED = 2; // Speed at which wasps chase the frog
+    SDL_Renderer* currentRenderer;  // Add renderer member
 
     Frog frog;
     SDL_Texture* spritesheet;
     SDL_Texture* tongueTip;  // Added for tongue rendering
-    // Mob textures
-    SDL_Texture* waspTexture;
-    SDL_Texture* turtleTexture;
-    SDL_Texture* bulletTexture;
     // Define frog states as constants
     const Frog::State frogIdle = Frog::State::IDLE;
     const Frog::State frogGrappling = Frog::State::GRAPPLING;
     const Frog::State frogJumping = Frog::State::JUMPING;
     const Frog::State frogFalling = Frog::State::FALLING;
 
+    // Wasp and Turtle textures
+    SDL_Texture* turtleTexture;
+    SDL_Texture* shellTexture;  // Added separate texture for shell
+    SDL_Texture* bulletTexture;
+    SDL_Texture* waspTexture;
+
+    // Member vectors to hold active wasps and turtles
+    std::vector<Wasp> wasps;
+    std::vector<Turtle> turtles;
+    std::vector<Bullet> bullets;
+
     std::shared_ptr<TerrainGrid> terrain;
-
-    // Lazily copy Fisher's functions into the class
-    void renderEntities(SDL_Renderer* renderer, const std::vector<Wasp>& wasps, const std::vector<Turtle>& turtles, const std::vector<Bullet>& bullets)
-    {
-        for (const auto& wasp : wasps) 
-        {
-            SDL_RendererFlip flip = wasp.facingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
-            SDL_RenderCopyEx(renderer, wasp.texture, nullptr, &wasp.rect, 0.0, nullptr, flip);
-        }
-
-        for (const auto& turtle : turtles) 
-        {
-            // Render the turtle's texture if it's not hiding. Need to update this with just shell png
-            if (turtle.texture) 
-            {
-                SDL_RendererFlip flip = turtle.facingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
-                SDL_RenderCopyEx(renderer, turtle.texture, nullptr, &turtle.rect, 0.0, nullptr, flip);
-            }
-            else 
-            {
-                // if the textures refuse to load again
-                std::cout << "Turt textures aren't loading properly again";
-            }
-        }
-
-        for (const auto& bullet : bullets)
-        {
-            if (bullet.texture != nullptr)  // Check if bullet has a valid texture
-            {
-                SDL_RenderCopy(renderer, bullet.texture, nullptr, &bullet.rect);
-            }
-            else
-            {
-                std::cout << "Bullet texture is null!" << std::endl;
-            }
-        }
-    }
-
-    void spawnTurtles(std::vector<Turtle>& turtles, std::vector<Bullet>& bullets, SDL_Texture* turtleTexture, SDL_Texture* bulletTexture)
-    {
-        for (auto& turtle : turtles)
-        {
-            turtle.updateMovement();  // Update movement independent of the player
-            // Remove renderer so that we can call it in update
-            turtle.fireBullet(bullets, bulletTexture);  // Fire bullets at regular intervals
-        }
-
-        Turtle turtle = { { rand() % (SCREEN_WIDTH - 50), rand() % (SCREEN_HEIGHT - 50), 50, 50 }, false, 0, 0, turtle.TURTLE_MOVE_INTERVAL, turtleTexture };
-        turtles.push_back(turtle); //bug testing
-    }
-
-    void spawnWasp(std::vector<Wasp>& wasps, SDL_Texture* waspTexture)
-    {
-        Wasp wasp = { { rand() % (SCREEN_WIDTH - 50), 0, 50, 50 }, 0, 0, waspTexture };
-        wasps.push_back(wasp); //bug testing
-    }
+    std::shared_ptr<terrainElements> terrainElems;
+    std::unique_ptr<RainSystem> rainSystem;
 
     DefaultShotgun* shotgun;
 
@@ -117,16 +88,99 @@ private:
         return newTexture;
     }
 
+    void checkBulletCollisions(SDL_Renderer* renderer) {
+        auto& shotgunBullets = shotgun->getBullets();
+        
+        // Check wasp collisions
+        for (auto& wasp : wasps) {
+            if (!wasp.active) continue;
+            
+            SDL_Rect waspBox = wasp.rect;
+            for (const auto& [id, bullet] : shotgunBullets) {
+                if (SDL_HasIntersection(&bullet.bulletPos, &waspBox)) {
+                    wasp.takeDamage(bullet.bulletDamage);
+                    break;
+                }
+            }
+        }
+        
+        // Check turtle collisions
+        for (auto& turtle : turtles) {
+            if (turtle.hiding) continue;
+            
+            SDL_Rect turtleBox = turtle.rect;
+            for (const auto& [id, bullet] : shotgunBullets) {
+                if (SDL_HasIntersection(&bullet.bulletPos, &turtleBox)) {
+                    turtle.takeDamage(bullet.bulletDamage);
+                    break;
+                }
+            }
+        }
+    }
+
+    void updateWasps(std::vector<Wasp>&wasps, Frog & player, int speed) {
+        for (auto it = wasps.begin(); it != wasps.end(); )
+        {
+            if (!it->active || it->pendingRemoval) {
+                // Ensure health bar is properly cleaned up before removal
+                if (it->health) {
+                    delete it->health;
+                    it->health = nullptr;
+                }
+                it = wasps.erase(it);
+            }
+            else {
+                it->moveTowards(player, speed);
+                it->updateHealthBar();
+                ++it;
+            }
+        }
+    }
+
+    void updateTurtles() {
+        for (auto it = turtles.begin(); it != turtles.end(); ) {
+            if (it->pendingRemoval) {
+                // Ensure health bar is properly cleaned up before removal
+                if (it->health) {
+                    delete it->health;
+                    it->health = nullptr;
+                }
+                it = turtles.erase(it);
+            } else {
+                it->hideinShell(frog);
+                it->updateMovement();
+                it->updateHealthBar();
+                it->fireBullet(bullets, frog, 1.0f/60.0f, currentRenderer, bulletTexture);
+                ++it;
+            }
+        }
+    }
+
+    void updateBullets(std::vector<Bullet>&bullets, Frog & player) {
+        SDL_Rect frogBox = frog.getCollisionBox();
+
+        for (auto it = bullets.begin(); it != bullets.end(); ) {
+            SDL_Rect bulletBox = it->rect;
+            // Check if the bullet's rectangle intersects with the frog's rectangle
+            // Bullet hits the frog, remove the bullet from the vector
+            if (SDL_HasIntersection(&bulletBox, &frogBox)) it = bullets.erase(it);
+            else ++it; // Continue to the next bullet
+        }
+    }
 
 public:
-    gameplay() : frog(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f), spritesheet(nullptr), tongueTip(nullptr), shotgun(nullptr) {} // Initialize frog in constructor
-
-    std::vector<Wasp> wasps;
-    std::vector<Turtle> turtles;
-    std::vector<Bullet> bullets;
+    gameplay() : frog(1280.0f / 2, 720.0f / 2), spritesheet(nullptr), tongueTip(nullptr), 
+                turtleTexture(nullptr), shellTexture(nullptr), bulletTexture(nullptr), 
+                waspTexture(nullptr), shotgun(nullptr), currentRenderer(nullptr) {
+        rainSystem = std::make_unique<RainSystem>(SCREEN_WIDTH, SCREEN_HEIGHT);
+    }
 
     void setTerrain(std::shared_ptr<TerrainGrid> t) {
         terrain = t;
+    }
+
+    void setTerrainElements(std::shared_ptr<terrainElements> te) {
+        terrainElems = te;
     }
 
     void Init() override {
@@ -191,13 +245,21 @@ public:
     }
 
     void Update(float deltaTime) override {
+        if (!currentRenderer) return;  // Skip update if renderer isn't ready
+
+        // Update rain
+        if (rainSystem) {
+            rainSystem->update(deltaTime);
+        }
+
         // Update frog's position and state
         frog.update(deltaTime);
         
-        // Update shotgun
+        // Update shotgun and check for bullet collisions
         if (shotgun) {
             shotgun->update(deltaTime);
             shotgun->updateBullets();
+            checkBulletCollisions(currentRenderer);
         }
         
         // Get the current collision box
@@ -209,40 +271,26 @@ public:
         if (frogBox.x + frogBox.w > SCREEN_WIDTH) frogBox.x = SCREEN_WIDTH - frogBox.w;
         if (frogBox.y + frogBox.h > SCREEN_HEIGHT) frogBox.y = SCREEN_HEIGHT - frogBox.h;
 
-        // Update wasps to chase the frog
-        for (auto& wasp : wasps) {
-            // Create a temporary wasp struct with the frog's position to use with moveTowards
-            Wasp frogTarget({frogBox.x, frogBox.y, frogBox.w, frogBox.h}, 0, 0, nullptr);
-            wasp.moveTowards(frogTarget, WASP_CHASE_SPEED);
-            wasp.facingRight = wasp.rect.x < frogBox.x; // Update facing direction based on frog position
-        }
+        static int frameCount = 0; // Track frame count to control spawning
+        frameCount++;
 
-        // Update turtles and make them shoot at the frog
-        for (auto& turtle : turtles) {
-            turtle.updateMovement();
-            turtle.facingRight = turtle.rect.x < frogBox.x; // Update facing direction based on frog position
-            turtle.fireBullet(bullets, bulletTexture); // Shoot bullets at the frog
-        }
+        // Spawn turtles and wasps only once every few frames
+        Turtle::spawnTurtles(turtles, frameCount, turtleTexture, currentRenderer, 0);
+        Wasp::spawnWasps(wasps, frameCount, waspTexture, currentRenderer);
+        
+        // Update turt bullets
+        updateBullets(bullets, frog);
+        
+        // Update wasps
+        updateWasps(wasps, frog, 3);
 
-        timer += deltaTime;
-        if (timer > 1.0f) {
-            timer -= 1.0f;
-            waspCounter++;
-            turtleCounter++;
-
-            if (waspCounter == WASP_SPAWN_RATE) {
-                waspCounter = 0;
-                spawnWasp(wasps, waspTexture);
-            }
-            if (turtleCounter == TURTLE_SPAWN_RATE) {
-                turtleCounter = 0;
-                spawnTurtles(turtles, bullets, turtleTexture, bulletTexture);
-            }
-        }
+        // Update turtles
+        updateTurtles();
     }
         
-
     void Render(SDL_Renderer* renderer) override {
+        currentRenderer = renderer;  // Store renderer for use in Update
+
         // Load the spritesheet if it hasn't been loaded yet
         if (!spritesheet || !tongueTip) {
             //ASSET LOADING - CHANGE ASSETS HERE
@@ -261,9 +309,15 @@ public:
             // Load mob textures if they are not already loaded
             if (!waspTexture) {
                 waspTexture = loadTexture("assets/wasp.png", renderer);
+                if (waspTexture) {
+                    SDL_SetTextureBlendMode(waspTexture, SDL_BLENDMODE_BLEND);
+                }
             }
             if (!turtleTexture) {
                 turtleTexture = loadTexture("assets/turtle.png", renderer);
+            }
+            if (!shellTexture) {
+                shellTexture = loadTexture("assets/shell.png", renderer);
             }
             if (!bulletTexture) {
                 bulletTexture = loadTexture("assets/bulletNew.png", renderer);
@@ -282,6 +336,12 @@ public:
                 terrain = std::make_shared<TerrainGrid>(renderer, 64, 36, 20);
                 terrain->generate();
             }
+            
+            // Create terrain elements if not provided
+            if (!terrainElems) {
+                terrainElems = std::make_shared<terrainElements>(renderer, terrain.get(), SCREEN_WIDTH, SCREEN_HEIGHT);
+                terrainElems->generate();
+            }
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -290,6 +350,16 @@ public:
         // Render terrain first as background
         if (terrain) {
             terrain->render(renderer);
+        }
+        
+        // Render terrain elements
+        if (terrainElems) {
+            terrainElems->render();
+        }
+
+        // Render rain after terrain but before entities
+        if (rainSystem) {
+            rainSystem->render(renderer);
         }
 
         // Get the current animation frame and texture
@@ -376,18 +446,50 @@ public:
                 SDL_RenderCopy(renderer, tongueTip, nullptr, &tipRect);
             }
         }
-        // Render enemies
-        renderEntities(renderer, wasps, turtles, bullets);
+
+        // Render wasps and turtles
+        for (auto& wasp : wasps) 
+        {
+            if (!wasp.pendingRemoval) {  // Only render if not pending removal
+                SDL_RendererFlip flip = (wasp.facingRight) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+                SDL_RenderCopyEx(renderer, wasp.texture, nullptr, &wasp.rect, 0.0, nullptr, flip);
+                wasp.renderHealthBar(renderer);
+            }
+        }
+
+        for (auto& turtle : turtles)
+        {
+            if (!turtle.pendingRemoval) {  // Only render if not pending removal
+                SDL_Texture* currentTexture = turtle.hiding ? shellTexture : turtleTexture;
+                SDL_RendererFlip flip = (turtle.facingRight) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+                SDL_RenderCopyEx(renderer, currentTexture, nullptr, &turtle.rect, 0.0, nullptr, flip);
+                turtle.renderHealthBar(renderer);
+            }
+        }
+
+        // Render bullets (if any)
+        for (const auto& bullet : bullets) 
+        {
+            SDL_RenderCopy(renderer, bulletTexture, nullptr, &bullet.rect);
+        }
+
+        if (!waspTexture) {
+            SDL_Log("Failed to load wasp texture: %s", IMG_GetError());
+        }
+
+        if (!turtleTexture) {
+            SDL_Log("Failed to load turtle texture: %s", IMG_GetError());
+        }
 
         // Finally, render the shotgun
         // Render bullet trails and shells
         if (shotgun) {
             shotgun->render(renderer, destRect.x + destRect.w/2, destRect.y + destRect.h/2);
         }
-        
     }
 
     void CleanUp() override {
+        currentRenderer = nullptr;  // Clear renderer reference
         if (spritesheet) {
             SDL_DestroyTexture(spritesheet);
             spritesheet = nullptr;
@@ -400,18 +502,21 @@ public:
             delete shotgun;
             shotgun = nullptr;
         }
-
-        if (waspTexture) {
-            delete waspTexture;
-            waspTexture = nullptr;
-        }
         if (turtleTexture) {
-            delete turtleTexture;
+            SDL_DestroyTexture(turtleTexture);
             turtleTexture = nullptr;
         }
+        if (shellTexture) {
+            SDL_DestroyTexture(shellTexture);
+            shellTexture = nullptr;
+        }
         if (bulletTexture) {
-            delete bulletTexture;
+            SDL_DestroyTexture(bulletTexture);
             bulletTexture = nullptr;
+        }
+        if (waspTexture) {
+            SDL_DestroyTexture(waspTexture);
+            waspTexture = nullptr;
         }
     }
 };

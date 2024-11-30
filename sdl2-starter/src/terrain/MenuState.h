@@ -1,15 +1,21 @@
 #pragma once
 #include "../GameState.h"
 #include "TerrainGrid.h"
-#include "../gameplay.h"
+#include "../terrainElem.h"
+#include "../RainSystem.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <memory>
 #include <iostream>
 
+// Forward declarations
+class GameStateManager;
+
 class MenuState : public GameState {
 private:
     std::shared_ptr<TerrainGrid> terrain;
+    std::shared_ptr<terrainElements> terrainElems;
+    std::unique_ptr<RainSystem> rainSystem;
     bool initialized;
     GameStateManager& stateManager;
     TTF_Font* regularFont;
@@ -67,7 +73,7 @@ private:
         SDL_RenderCopy(renderer, outlineTexture, NULL, &destRect);
 
         // Render regular text (white) on top with a slight offset
-        SDL_Rect regularRect = {x - 1, y + 1, width, height};
+        SDL_Rect regularRect = {x, y + 1, width - 1, height};
         SDL_RenderCopy(renderer, regularTexture, NULL, &regularRect);
 
         // Clean up
@@ -96,6 +102,7 @@ public:
         : initialized(false), stateManager(manager), regularFont(nullptr), outlineFont(nullptr) {
         whiteColor = {255, 255, 255, 255}; // White
         brownColor = {154, 77, 1, 255};    // Brown
+        rainSystem = std::make_unique<RainSystem>(1280, 720); // Initialize rain system with screen dimensions
     }
 
     void Init() override {
@@ -103,63 +110,25 @@ public:
         initialized = false;
 
         // Load both fonts with the same size
-        regularFont = loadFont("pixelFont.ttf", 24);
-        outlineFont = loadFont("pixelFontOutline.ttf", 24);
+        regularFont = loadFont("pixelFont.ttf", 16);
+        outlineFont = loadFont("pixelFontOutline.ttf", 16);
     }
 
-    void Update(float deltaTime) override {}
-
-    void HandleEvents(SDL_Event& event) override {
-        if (event.type == SDL_KEYDOWN) {
-            std::cout << "Key pressed: " << SDL_GetKeyName(event.key.keysym.sym) << std::endl;
-            
-            // Ensure terrain is initialized before handling any terrain-related keys
-            if (!initialized || !terrain) {
-                std::cout << "Terrain not initialized, initializing now..." << std::endl;
-                return;
-            }
-
-            switch (event.key.keysym.sym) {
-                case SDLK_RETURN:
-                case SDLK_SPACE: {
-                    std::cout << "Starting game..." << std::endl;
-                    auto* gameplayState = new gameplay();
-                    gameplayState->setTerrain(terrain);
-                    stateManager.ChangeState(gameplayState);
-                    return;
-                }
-                case SDLK_w:
-                    std::cout << "Adjusting water threshold up" << std::endl;
-                    terrain->setWaterThreshold(terrain->getWaterThreshold() + 0.05f);
-                    break;
-                case SDLK_s:
-                    std::cout << "Adjusting water threshold down" << std::endl;
-                    terrain->setWaterThreshold(terrain->getWaterThreshold() - 0.05f);
-                    break;
-                case SDLK_e:
-                    std::cout << "Adjusting grass threshold up" << std::endl;
-                    terrain->setGrassThreshold(terrain->getGrassThreshold() + 0.05f);
-                    break;
-                case SDLK_d:
-                    std::cout << "Adjusting grass threshold down" << std::endl;
-                    terrain->setGrassThreshold(terrain->getGrassThreshold() - 0.05f);
-                    break;
-                case SDLK_r:
-                    std::cout << "Regenerating terrain..." << std::endl;
-                    terrain->generate();
-                    break;
-                default:
-                    std::cout << "Unhandled key press" << std::endl;
-                    break;
-            }
+    void Update(float deltaTime) override {
+        if (rainSystem) {
+            rainSystem->update(deltaTime);
         }
     }
+
+    void HandleEvents(SDL_Event& event) override;  // Definition moved to cpp file
 
     void Render(SDL_Renderer* renderer) override {
         if (!initialized || !terrain) {
             std::cout << "Creating terrain..." << std::endl;
             terrain = std::make_shared<TerrainGrid>(renderer, 64, 36, 20);
             terrain->generate();
+            terrainElems = std::make_shared<terrainElements>(renderer, terrain.get(), 1280, 720);
+            terrainElems->generate();
             initialized = true;
             std::cout << "Terrain created" << std::endl;
         }
@@ -168,6 +137,12 @@ public:
         SDL_RenderClear(renderer);
         
         terrain->render(renderer);
+        terrainElems->render();
+        
+        // Render rain after terrain but before UI
+        if (rainSystem) {
+            rainSystem->render(renderer);
+        }
         
         // Render text instructions
         renderTextPair(renderer, "PRESS W/S TO ADJUST WATER LEVEL", 100, 100);
@@ -187,4 +162,8 @@ public:
             outlineFont = nullptr;
         }
     }
+
+    // Getter methods for terrain
+    std::shared_ptr<TerrainGrid> getTerrain() const { return terrain; }
+    std::shared_ptr<terrainElements> getTerrainElements() const { return terrainElems; }
 };

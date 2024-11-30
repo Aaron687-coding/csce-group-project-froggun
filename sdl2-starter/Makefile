@@ -12,7 +12,10 @@ SRCS = $(SRC_DIR)/main.cpp \
        $(SRC_DIR)/turtle/turtleStruct.cpp \
        $(SRC_DIR)/turtle/turtBullet/bulletStruct.cpp \
        $(SRC_DIR)/wasp/waspStruct.cpp \
-       $(SRC_DIR)/terrain/TerrainGrid.cpp
+       $(SRC_DIR)/terrain/TerrainGrid.cpp \
+       $(SRC_DIR)/terrain/MenuState.cpp \
+       $(SRC_DIR)/terrainElem.cpp \
+	   $(SRC_DIR)/healthBar.cpp
 
 HEADERS = $(SRC_DIR)/GameState.h \
           $(SRC_DIR)/gameplay.h \
@@ -24,7 +27,10 @@ HEADERS = $(SRC_DIR)/GameState.h \
           $(SRC_DIR)/turtle/turtBullet/bulletStruct.h \
           $(SRC_DIR)/wasp/waspStruct.h \
           $(SRC_DIR)/terrain/TerrainGrid.h \
-          $(SRC_DIR)/terrain/TerrainState.h
+          $(SRC_DIR)/terrain/TerrainState.h \
+          $(SRC_DIR)/terrain/MenuState.h \
+          $(SRC_DIR)/terrainElem.h \
+		  $(SRC_DIR)/RainSystem.h
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 OBJ_NAME = play

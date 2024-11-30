@@ -3,16 +3,19 @@
 
 #include <SDL2/SDL.h>
 #include <string>
+#include "../../frog/frogClass.h"
 
 struct Bullet 
 {
     SDL_Rect rect;
     SDL_Texture* texture;
-    float speed;
-    int dx, dy;
+    float speed = 1;
+    float directionX;
+    float directionY;
+    bool active;
 
-    Bullet(int x, int y, int s, SDL_Texture* tex, int dirX, int dirY);
-    void move();
+    Bullet(int x, int y, int s, SDL_Texture* tex, float dirX, float dirY);
+    void move(float deltaTime, Frog& player);
 };
 
 #endif

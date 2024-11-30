@@ -6,7 +6,7 @@ Frog::Frog(float startX, float startY)
       jumpHeight(0), jumpTime(0), grappleX(0), grappleY(0),
       grounded(true), currentState(State::IDLE), 
       facing(Direction::LEFT) {
-    collisionBox = {static_cast<int>(x), static_cast<int>(y), (16 * 4), (14 * 4)}; // Default size
+    collisionBox = {static_cast<int>(x), static_cast<int>(y), (16 * 3), (14 * 3)}; // Default size
 }
 
 // Destructor
