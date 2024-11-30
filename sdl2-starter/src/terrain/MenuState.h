@@ -3,6 +3,7 @@
 #include "TerrainGrid.h"
 #include "../terrainElem.h"
 #include "../RainSystem.h"
+#include "../waterPhysics.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <memory>
@@ -16,6 +17,7 @@ private:
     std::shared_ptr<TerrainGrid> terrain;
     std::shared_ptr<terrainElements> terrainElems;
     std::unique_ptr<RainSystem> rainSystem;
+    std::unique_ptr<WaterPhysics> waterPhysics;  // Added water physics
     bool initialized;
     GameStateManager& stateManager;
     TTF_Font* regularFont;
@@ -118,6 +120,11 @@ public:
         if (rainSystem) {
             rainSystem->update(deltaTime);
         }
+        
+        // Update water physics
+        if (waterPhysics && terrain) {
+            waterPhysics->update(deltaTime, *terrain);
+        }
     }
 
     void HandleEvents(SDL_Event& event) override;  // Definition moved to cpp file
@@ -125,10 +132,12 @@ public:
     void Render(SDL_Renderer* renderer) override {
         if (!initialized || !terrain) {
             std::cout << "Creating terrain..." << std::endl;
+             // Use 1280, 720, 1 for smoother maps :)
             terrain = std::make_shared<TerrainGrid>(renderer, 64, 36, 20);
             terrain->generate();
             terrainElems = std::make_shared<terrainElements>(renderer, terrain.get(), 1280, 720);
             terrainElems->generate();
+            waterPhysics = std::make_unique<WaterPhysics>(renderer);  // Initialize water physics
             initialized = true;
             std::cout << "Terrain created" << std::endl;
         }
@@ -139,7 +148,12 @@ public:
         terrain->render(renderer);
         terrainElems->render();
         
-        // Render rain after terrain but before UI
+        // Render water effects after terrain but before rain
+        if (waterPhysics) {
+            waterPhysics->render(renderer);
+        }
+        
+        // Render rain after water effects but before UI
         if (rainSystem) {
             rainSystem->render(renderer);
         }

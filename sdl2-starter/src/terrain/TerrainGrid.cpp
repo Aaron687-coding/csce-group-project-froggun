@@ -130,7 +130,7 @@ void TerrainGrid::generate() {
     // Generate new permutation table
     initPermutationTable();
 
-    float scale = 0.05f;
+    float scale = 0.05f; // 0.001 for smooth generations
     int octaves = 6;
     float persistence = 0.5f;
 

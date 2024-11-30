@@ -15,7 +15,8 @@ SRCS = $(SRC_DIR)/main.cpp \
        $(SRC_DIR)/terrain/TerrainGrid.cpp \
        $(SRC_DIR)/terrain/MenuState.cpp \
        $(SRC_DIR)/terrainElem.cpp \
-	   $(SRC_DIR)/healthBar.cpp
+	   $(SRC_DIR)/healthBar.cpp \
+	   $(SRC_DIR)/waterPhysics.cpp
 
 HEADERS = $(SRC_DIR)/GameState.h \
           $(SRC_DIR)/gameplay.h \
@@ -30,7 +31,8 @@ HEADERS = $(SRC_DIR)/GameState.h \
           $(SRC_DIR)/terrain/TerrainState.h \
           $(SRC_DIR)/terrain/MenuState.h \
           $(SRC_DIR)/terrainElem.h \
-		  $(SRC_DIR)/RainSystem.h
+		  $(SRC_DIR)/RainSystem.h \
+		  $(SRC_DIR)/waterPhysics.h
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 OBJ_NAME = play

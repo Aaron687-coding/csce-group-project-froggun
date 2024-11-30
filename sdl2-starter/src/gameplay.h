@@ -32,6 +32,7 @@ Memory & Health Bar Fixes (2024):
 #include "terrain/TerrainGrid.h"
 #include "terrainElem.h"
 #include "RainSystem.h"
+#include "waterPhysics.h"  // Changed from waterPhysics.cpp to waterPhysics.h
 #include <SDL2/SDL.h>
 #include <cmath>
 #include <vector>
@@ -74,6 +75,7 @@ private:
     std::shared_ptr<TerrainGrid> terrain;
     std::shared_ptr<terrainElements> terrainElems;
     std::unique_ptr<RainSystem> rainSystem;
+    std::unique_ptr<WaterPhysics> waterPhysics;  // Added water physics system
 
     DefaultShotgun* shotgun;
 
@@ -252,6 +254,19 @@ public:
             rainSystem->update(deltaTime);
         }
 
+        // Update water physics
+        if (waterPhysics && terrain) {
+            waterPhysics->update(deltaTime, *terrain);
+            
+            // Add water ring at frog's position if on water
+            SDL_Rect frogBox = frog.getCollisionBox();
+            int gridX = frogBox.x / terrain->getCellSize();
+            int gridY = frogBox.y / terrain->getCellSize();
+            if (terrain->isWater(gridX, gridY)) {
+                waterPhysics->addFrogRing(frogBox.x + frogBox.w/2, frogBox.y + frogBox.h/2);
+            }
+        }
+
         // Update frog's position and state
         frog.update(deltaTime);
         
@@ -342,6 +357,11 @@ public:
                 terrainElems = std::make_shared<terrainElements>(renderer, terrain.get(), SCREEN_WIDTH, SCREEN_HEIGHT);
                 terrainElems->generate();
             }
+
+            // Initialize water physics system
+            if (!waterPhysics) {
+                waterPhysics = std::make_unique<WaterPhysics>(renderer);
+            }
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -357,7 +377,12 @@ public:
             terrainElems->render();
         }
 
-        // Render rain after terrain but before entities
+        // Render water effects after terrain but before entities
+        if (waterPhysics) {
+            waterPhysics->render(renderer);
+        }
+
+        // Render rain after water effects but before entities
         if (rainSystem) {
             rainSystem->render(renderer);
         }

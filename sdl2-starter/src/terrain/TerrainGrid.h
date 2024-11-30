@@ -39,6 +39,9 @@ public:
     float getGrassThreshold() const { return grassThreshold; }
     int getCellSize() const { return cellSize; }
     float getValueAt(int x, int y) const { return grid[y][x]; }
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
+    bool isWater(int x, int y) const { return getValueAt(x, y) < waterThreshold; }
     void generate();
     void render(SDL_Renderer* renderer);
 };
