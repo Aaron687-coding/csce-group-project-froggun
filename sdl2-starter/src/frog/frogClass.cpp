@@ -4,8 +4,8 @@
 Frog::Frog(float startX, float startY) 
     : x(startX), y(startY), velocityX(0), velocityY(0), 
       jumpHeight(0), jumpTime(0), grappleX(0), grappleY(0),
-      grounded(true), currentState(State::IDLE), 
-      facing(Direction::LEFT) {
+      grounded(true), onWater(false), currentState(State::IDLE), 
+      facing(Direction::LEFT), health(100) {
     collisionBox = {static_cast<int>(x), static_cast<int>(y), (16 * 3), (14 * 3)}; // Default size
 }
 
@@ -15,6 +15,33 @@ Frog::~Frog() {
         if (pair.second.spritesheet) {
             SDL_DestroyTexture(pair.second.spritesheet);
         }
+    }
+}
+
+// Health functions
+void Frog::initializeHealthBar(SDL_Renderer* renderer, int maxHealth) {
+    hpBar = std::make_unique<healthBar>(renderer, maxHealth);
+    health = maxHealth;
+}
+
+void Frog::takeDamage(int amount) {
+    if (currentState != State::DEAD) {
+        health -= amount;
+        if (health <= 0) {
+            health = 0;
+            currentState = State::DEAD;
+            stopMoving();
+        }
+        if (hpBar) {
+            hpBar->setHealth(health);
+        }
+    }
+}
+
+void Frog::drawHealthBar() {
+    if (hpBar) {
+        hpBar->setPosition(x + collisionBox.w/2, y);
+        hpBar->draw();
     }
 }
 
@@ -34,12 +61,49 @@ void Frog::addAnimation(State state, SDL_Texture* spritesheet, int frameWidth,
 
 // Update function
 void Frog::update(float deltaTime) {
+    if (currentState == State::DEAD) {
+        return;  // Don't update if dead
+    }
+
     const float JUMP_DURATION = 0.2f; // Total jump duration in seconds
     const float MAX_JUMP_HEIGHT = 80.0f; // Maximum height of the jump bobbing effect 
 
-    // Update position based on velocity
-    x += velocityX * deltaTime;
-    y += velocityY * deltaTime;
+    // Calculate potential new position
+    float newX = x + velocityX * deltaTime;
+    float newY = y + velocityY * deltaTime;
+
+    // Check boundaries before updating position
+    // Screen boundaries are hardcoded here since they're constants in gameplay.h
+    const int SCREEN_WIDTH = 1280;
+    const int SCREEN_HEIGHT = 720;
+    const int COLLISION_WIDTH = collisionBox.w;
+    const int COLLISION_HEIGHT = collisionBox.h;
+
+    // Horizontal boundary check
+    if (newX < 0) {
+        newX = 0;
+        velocityX = 0;
+    } else if (newX + COLLISION_WIDTH > SCREEN_WIDTH) {
+        newX = SCREEN_WIDTH - COLLISION_WIDTH;
+        velocityX = 0;
+    }
+
+    // Vertical boundary check
+    if (newY < 0) {
+        newY = 0;
+        velocityY = 0;
+        if (currentState == State::JUMPING) {
+            currentState == State::IDLE;
+            stopMoving();
+        }
+    } else if (newY + COLLISION_HEIGHT > SCREEN_HEIGHT) {
+        newY = SCREEN_HEIGHT - COLLISION_HEIGHT;
+        velocityY = 0;
+    }
+
+    // Update position with boundary-checked values
+    x = newX;
+    y = newY;
 
     // Handle jump physics
     if (currentState == State::JUMPING) {
@@ -73,8 +137,9 @@ void Frog::update(float deltaTime) {
         // Update velocities to maintain course to target
         if (distance > 0) {
             float speedMultiplier = (jumpTime > 0) ? 2.5f : 1.0f;
-            velocityX = (dirX / distance) * GRAPPLE_SPEED * speedMultiplier;
-            velocityY = (dirY / distance) * GRAPPLE_SPEED * speedMultiplier;
+            float currentSpeed = getCurrentGrappleSpeed() * speedMultiplier;
+            velocityX = (dirX / distance) * currentSpeed;
+            velocityY = (dirY / distance) * currentSpeed;
         }
 
         // Check if we've reached the target
@@ -102,6 +167,8 @@ void Frog::update(float deltaTime) {
 
 // Movement functions
 void Frog::grapple(int targetX, int targetY) {
+    if (currentState == State::DEAD) return;  // Don't grapple if dead
+
     // Calculate direction vector
     float dirX = targetX - x;
     float dirY = targetY - y;
@@ -116,8 +183,9 @@ void Frog::grapple(int targetX, int targetY) {
     // Set initial velocities based on direction
     if (distance > 0) {  // Prevent division by zero
         float speedMultiplier = (currentState == State::JUMPING) ? 2.5f : 1.0f;
-        velocityX = (dirX / distance) * GRAPPLE_SPEED * speedMultiplier;
-        velocityY = (dirY / distance) * GRAPPLE_SPEED * speedMultiplier;
+        float currentSpeed = getCurrentGrappleSpeed() * speedMultiplier;
+        velocityX = (dirX / distance) * currentSpeed;
+        velocityY = (dirY / distance) * currentSpeed;
     }
     
     // Update facing direction based on movement
@@ -137,6 +205,8 @@ void Frog::grapple(int targetX, int targetY) {
 }
 
 void Frog::jump(float directionX, float directionY) {
+    if (currentState == State::DEAD) return;  // Don't jump if dead
+
     if (grounded || currentState == State::GRAPPLING) {
         // Update facing direction based on horizontal movement
         if (directionX > 0) {
@@ -152,8 +222,9 @@ void Frog::jump(float directionX, float directionY) {
             directionY *= normalizer;
         }
 
-        velocityX = directionX * JUMP_FORCE + directionX * MOVE_SPEED;
-        velocityY = directionY * JUMP_FORCE + directionY * MOVE_SPEED;
+        float currentSpeed = getCurrentMoveSpeed();
+        velocityX = directionX * JUMP_FORCE + directionX * currentSpeed;
+        velocityY = directionY * JUMP_FORCE + directionY * currentSpeed;
 
         grounded = false;
         currentState = State::JUMPING;
@@ -167,7 +238,9 @@ void Frog::stopMoving() {
         velocityX = 0;
         velocityY = 0;
         grounded = true;
-        currentState = State::IDLE;
+        if (currentState != State::DEAD) {  // Only change to IDLE if not dead
+            currentState = State::IDLE;
+        }
         jumpTime = 0;
         jumpHeight = 0;
     }

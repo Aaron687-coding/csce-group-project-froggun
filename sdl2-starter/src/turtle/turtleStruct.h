@@ -22,6 +22,7 @@ struct Turtle
     int moveDuration;
     healthBar* health;
     bool pendingRemoval;  // New flag to handle delayed removal
+    float hurtTimer;
     static int turtCounter;
 
     Turtle(SDL_Rect r, bool hiding, float dx, float dy, SDL_Texture* tex);
@@ -31,8 +32,8 @@ struct Turtle
         rect(other.rect), texture(other.texture), up(other.up), down(other.down),
         left(other.left), right(other.right), hiding(other.hiding), dx(other.dx),
         dy(other.dy), bulletTimer(other.bulletTimer), facingRight(other.facingRight),
-        turtmoveTimer(other.turtmoveTimer), moveDuration(other.moveDuration),
-        health(nullptr), pendingRemoval(other.pendingRemoval) {
+        turtmoveTimer(other.turtmoveTimer), moveDuration(other.moveDuration), 
+        hurtTimer(other.hurtTimer), health(nullptr), pendingRemoval(other.pendingRemoval) {
         if (other.health) {
             health = new healthBar(*other.health);
         }
@@ -43,8 +44,9 @@ struct Turtle
         rect(other.rect), texture(other.texture), up(other.up), down(other.down),
         left(other.left), right(other.right), hiding(other.hiding), dx(other.dx),
         dy(other.dy), bulletTimer(other.bulletTimer), facingRight(other.facingRight),
-        turtmoveTimer(other.turtmoveTimer), moveDuration(other.moveDuration),
-        health(other.health), pendingRemoval(other.pendingRemoval) {
+        turtmoveTimer(other.turtmoveTimer), moveDuration(other.moveDuration), 
+        hurtTimer(other.hurtTimer), health(other.health), 
+        pendingRemoval(other.pendingRemoval) {
         other.health = nullptr;  // Transfer ownership
         other.texture = nullptr;
     }
@@ -66,6 +68,7 @@ struct Turtle
             turtmoveTimer = other.turtmoveTimer;
             moveDuration = other.moveDuration;
             pendingRemoval = other.pendingRemoval;
+            hurtTimer = other.hurtTimer;
 
             // Handle health bar
             delete health;
@@ -91,6 +94,7 @@ struct Turtle
             turtmoveTimer = other.turtmoveTimer;
             moveDuration = other.moveDuration;
             pendingRemoval = other.pendingRemoval;
+            hurtTimer = other.hurtTimer;
 
             // Handle health bar
             delete health;

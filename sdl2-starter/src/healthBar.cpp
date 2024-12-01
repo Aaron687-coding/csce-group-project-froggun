@@ -126,7 +126,8 @@ public:
             BAR_WIDTH,
             BAR_HEIGHT
         };
-        SDL_SetRenderDrawColor(renderer, 64, 64, 64, 255);
+        // Red purple
+        SDL_SetRenderDrawColor(renderer, 149, 53, 83, 255);
         SDL_RenderFillRect(renderer, &bgRect);
 
         // Foreground (current health)
@@ -137,7 +138,8 @@ public:
             currentWidth,
             BAR_HEIGHT
         };
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        // Rose red
+        SDL_SetRenderDrawColor(renderer, 243, 58, 106, 255);
         SDL_RenderFillRect(renderer, &healthRect);
     }
 };

@@ -8,7 +8,7 @@ using namespace std;
 
 Wasp::Wasp(SDL_Rect r, float dx, float dy, SDL_Texture* tex)
     : rect(r), texture(tex), dx(dx), dy(dy), left(0), right(0), active(true), 
-      facingRight(false), health(nullptr), pendingRemoval(false) {}
+      facingRight(false), health(nullptr), pendingRemoval(false), damageTimer(0.0f) {}
 
 void Wasp::moveTowards(Frog& player, int speed)
 {

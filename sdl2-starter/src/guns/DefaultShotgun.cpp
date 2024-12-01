@@ -74,8 +74,8 @@ void DefaultShotgun::shoot(int startX, int startY, int aimX, int aimY) {
 void DefaultShotgun::setGunState(gunState state) {
     if (state == gunState::RELOAD && currentState != gunState::RELOAD) {
         // Eject shells when starting reload
-        ejectShell();
-        ejectShell();
+        for (int i = 0; i < maxAmmo - currentAmmo; i++)
+            ejectShell();
     }
     currentState = state;
 }
@@ -139,8 +139,8 @@ void DefaultShotgun::updateGunPosition(int frogX, int frogY, int mouseX, int mou
 }
 
 void DefaultShotgun::renderAmmoIcons(SDL_Renderer* renderer, int frogX, int frogY) {
-    const int ICON_SIZE = 32;  // Size of ammo icons
-    const int ICON_SPACING = 25;  // Space between icons
+    const int ICON_SIZE = 24;  // Size of ammo icons
+    const int ICON_SPACING = 20;  // Space between icons
     const int ICON_OFFSET_Y = 40;  // Distance below frog
     
     // Calculate starting position for first icon

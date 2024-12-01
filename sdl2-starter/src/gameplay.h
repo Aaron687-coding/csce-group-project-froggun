@@ -19,6 +19,8 @@ Memory & Health Bar Fixes (2024):
 8. Fixed render command conflicts by properly managing health bar visibility states
 9. Improved entity lifecycle management with better state transitions
 10. Added safety checks for renderer availability in Update and Render methods
+
+- added hurtFlash header and implementation files to show damage
 *********************************************/
 
 #ifndef GAMEPLAY_H
@@ -32,7 +34,8 @@ Memory & Health Bar Fixes (2024):
 #include "terrain/TerrainGrid.h"
 #include "terrainElem.h"
 #include "RainSystem.h"
-#include "waterPhysics.h"  // Changed from waterPhysics.cpp to waterPhysics.h
+#include "waterPhysics.h"
+#include "hurtFlash.h"
 #include <SDL2/SDL.h>
 #include <cmath>
 #include <vector>
@@ -52,6 +55,14 @@ private:
     const int SCREEN_HEIGHT = 720;
     SDL_Renderer* currentRenderer;  // Add renderer member
 
+    // Damage constants
+    const int WASP_DAMAGE = 10;
+    const int BULLET_DAMAGE = 30;
+    const int FROG_MAX_HEALTH = 100;
+
+    // Add hurtFlash instance
+    hurtFlash* flashManager;
+
     Frog frog;
     SDL_Texture* spritesheet;
     SDL_Texture* tongueTip;  // Added for tongue rendering
@@ -60,6 +71,7 @@ private:
     const Frog::State frogGrappling = Frog::State::GRAPPLING;
     const Frog::State frogJumping = Frog::State::JUMPING;
     const Frog::State frogFalling = Frog::State::FALLING;
+    const Frog::State frogDead = Frog::State::DEAD;
 
     // Wasp and Turtle textures
     SDL_Texture* turtleTexture;
@@ -101,6 +113,7 @@ private:
             for (const auto& [id, bullet] : shotgunBullets) {
                 if (SDL_HasIntersection(&bullet.bulletPos, &waspBox)) {
                     wasp.takeDamage(bullet.bulletDamage);
+                    flashManager->startFlash(&wasp); // Start flash effect
                     break;
                 }
             }
@@ -114,8 +127,35 @@ private:
             for (const auto& [id, bullet] : shotgunBullets) {
                 if (SDL_HasIntersection(&bullet.bulletPos, &turtleBox)) {
                     turtle.takeDamage(bullet.bulletDamage);
+                    flashManager->startFlash(&turtle); // Start flash effect
                     break;
                 }
+            }
+        }
+    }
+
+    void checkEnemyCollisions() {
+        SDL_Rect frogBox = frog.getCollisionBox();
+
+        // Check wasp collisions
+        for (auto& wasp : wasps) {
+            if (!wasp.active || wasp.pendingRemoval) continue;
+            
+            if (SDL_HasIntersection(&wasp.rect, &frogBox) && wasp.canDealDamage()
+                && frog.getState() != Frog::State::JUMPING) {
+                frog.takeDamage(WASP_DAMAGE);
+                flashManager->startFlash(&frog); // Start flash effect
+                wasp.resetDamageTimer();
+            }
+        }
+
+        // Check bullet collisions
+        for (const auto& bullet : bullets) {
+            if (!bullet.active) continue;
+            
+            if (SDL_HasIntersection(&bullet.rect, &frogBox)) {
+                frog.takeDamage(BULLET_DAMAGE);
+                flashManager->startFlash(&frog); // Start flash effect
             }
         }
     }
@@ -134,6 +174,7 @@ private:
             else {
                 it->moveTowards(player, speed);
                 it->updateHealthBar();
+                it->updateDamageTimer(1.0f/60.0f); // Update damage cooldown timer
                 ++it;
             }
         }
@@ -175,6 +216,7 @@ public:
                 turtleTexture(nullptr), shellTexture(nullptr), bulletTexture(nullptr), 
                 waspTexture(nullptr), shotgun(nullptr), currentRenderer(nullptr) {
         rainSystem = std::make_unique<RainSystem>(SCREEN_WIDTH, SCREEN_HEIGHT);
+        flashManager = hurtFlash::getInstance();
     }
 
     void setTerrain(std::shared_ptr<TerrainGrid> t) {
@@ -190,6 +232,9 @@ public:
     }
 
     void HandleEvents(SDL_Event& event) override {
+        // Don't handle events if frog is dead
+        if (frog.getState() == Frog::State::DEAD) return;
+
         const Uint8* keys = SDL_GetKeyboardState(nullptr);
         
         if (event.type == SDL_KEYDOWN) {
@@ -217,7 +262,7 @@ public:
 
             // Handle reload with R key
             if (keys[SDL_SCANCODE_R] && shotgun) {
-                shotgun->reload();  // This will handle both state change and reload logic
+                shotgun->reload();
             }
         }
         
@@ -240,7 +285,8 @@ public:
         // Stop movement when keys are released
         if (event.type == SDL_KEYUP) {
             if (!keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S] && 
-                !keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D]) {
+                !keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D]
+                 && frog.getState() != Frog::State::GRAPPLING) {
                 frog.stopMoving();
             }
         }
@@ -249,26 +295,40 @@ public:
     void Update(float deltaTime) override {
         if (!currentRenderer) return;  // Skip update if renderer isn't ready
 
+        // Update flash effects
+        flashManager->update(deltaTime);
+
         // Update rain
         if (rainSystem) {
             rainSystem->update(deltaTime);
         }
 
-        // Update water physics
+        // Update water physics and check if frog is on water
         if (waterPhysics && terrain) {
             waterPhysics->update(deltaTime, *terrain);
             
-            // Add water ring at frog's position if on water
+            // Check if frog is on water and update its state
             SDL_Rect frogBox = frog.getCollisionBox();
             int gridX = frogBox.x / terrain->getCellSize();
             int gridY = frogBox.y / terrain->getCellSize();
-            if (terrain->isWater(gridX, gridY)) {
+            bool isOnWater = terrain->isWater(gridX, gridY);
+            
+            // Update frog's water state
+            frog.setOnWater(isOnWater);
+            
+            // Add water ring at frog's position if on water
+            if (isOnWater) {
                 waterPhysics->addFrogRing(frogBox.x + frogBox.w/2, frogBox.y + frogBox.h/2);
             }
         }
-
+        
         // Update frog's position and state
         frog.update(deltaTime);
+        
+        // Check enemy collisions if frog is alive
+        if (frog.getState() != Frog::State::DEAD) {
+            checkEnemyCollisions();
+        }
         
         // Update shotgun and check for bullet collisions
         if (shotgun) {
@@ -276,15 +336,6 @@ public:
             shotgun->updateBullets();
             checkBulletCollisions(currentRenderer);
         }
-        
-        // Get the current collision box
-        SDL_Rect frogBox = frog.getCollisionBox();
-        
-        // Keep the frog within screen bounds
-        if (frogBox.x < 0) frogBox.x = 0;
-        if (frogBox.y < 0) frogBox.y = 0;
-        if (frogBox.x + frogBox.w > SCREEN_WIDTH) frogBox.x = SCREEN_WIDTH - frogBox.w;
-        if (frogBox.y + frogBox.h > SCREEN_HEIGHT) frogBox.y = SCREEN_HEIGHT - frogBox.h;
 
         static int frameCount = 0; // Track frame count to control spawning
         frameCount++;
@@ -302,7 +353,7 @@ public:
         // Update turtles
         updateTurtles();
     }
-        
+
     void Render(SDL_Renderer* renderer) override {
         currentRenderer = renderer;  // Store renderer for use in Update
 
@@ -319,6 +370,10 @@ public:
                 frog.addAnimation(frogGrappling, spritesheet, 16, 14, 1, 0);
                 frog.addAnimation(frogJumping, spritesheet, 16, 14, 1, 0);
                 frog.addAnimation(frogFalling, spritesheet, 16, 14, 1, 0);
+                frog.addAnimation(frogDead, spritesheet, 16, 14, 1, 0);
+                
+                // Initialize frog's health bar
+                frog.initializeHealthBar(renderer, FROG_MAX_HEALTH);
             }
 
             // Load mob textures if they are not already loaded
@@ -397,9 +452,20 @@ public:
             SDL_RendererFlip flip = (frog.getFacing() == Frog::Direction::LEFT) ? 
                                    SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
             
+            // Get potentially flashing texture
+            SDL_Texture* displayTexture = flashManager->getFilledImage(renderer, currentTexture, &frog);
+            
             // Render the frog
-            SDL_RenderCopyEx(renderer, currentTexture, &srcRect, &destRect, 
+            SDL_RenderCopyEx(renderer, displayTexture, &srcRect, &destRect, 
                            0.0, nullptr, flip);
+            
+            // Clean up if a new texture was created
+            if (displayTexture != currentTexture) {
+                SDL_DestroyTexture(displayTexture);
+            }
+            
+            // Draw the frog's health bar
+            frog.drawHealthBar();
         }
 
         if (frog.getState() == Frog::State::GRAPPLING) {
@@ -477,17 +543,25 @@ public:
         {
             if (!wasp.pendingRemoval) {  // Only render if not pending removal
                 SDL_RendererFlip flip = (wasp.facingRight) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-                SDL_RenderCopyEx(renderer, wasp.texture, nullptr, &wasp.rect, 0.0, nullptr, flip);
+                SDL_Texture* displayTexture = flashManager->getFilledImage(renderer, wasp.texture, &wasp);
+                SDL_RenderCopyEx(renderer, displayTexture, nullptr, &wasp.rect, 0.0, nullptr, flip);
+                if (displayTexture != wasp.texture) {
+                    SDL_DestroyTexture(displayTexture);
+                }
                 wasp.renderHealthBar(renderer);
             }
         }
 
-        for (auto& turtle : turtles)
-        {
-            if (!turtle.pendingRemoval) {  // Only render if not pending removal
-                SDL_Texture* currentTexture = turtle.hiding ? shellTexture : turtleTexture;
+        // Render turtles with flash effect
+        for (auto& turtle : turtles) {
+            if (!turtle.pendingRemoval) {
+                SDL_Texture* baseTexture = turtle.hiding ? shellTexture : turtleTexture;
+                SDL_Texture* displayTexture = flashManager->getFilledImage(renderer, baseTexture, &turtle);
                 SDL_RendererFlip flip = (turtle.facingRight) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-                SDL_RenderCopyEx(renderer, currentTexture, nullptr, &turtle.rect, 0.0, nullptr, flip);
+                SDL_RenderCopyEx(renderer, displayTexture, nullptr, &turtle.rect, 0.0, nullptr, flip);
+                if (displayTexture != baseTexture) {
+                    SDL_DestroyTexture(displayTexture);
+                }
                 turtle.renderHealthBar(renderer);
             }
         }

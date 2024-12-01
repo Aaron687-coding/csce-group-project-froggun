@@ -18,6 +18,8 @@ struct Wasp
     bool facingRight;
     healthBar* health;
     bool pendingRemoval;  // New flag to handle delayed removal
+    float damageTimer;    // Timer for damage cooldown
+    static constexpr float DAMAGE_COOLDOWN = 1.5f; // Cooldown in seconds
 
     Wasp(SDL_Rect r, float dx, float dy, SDL_Texture* tex);
 
@@ -25,7 +27,8 @@ struct Wasp
     Wasp(const Wasp& other) : 
         rect(other.rect), texture(other.texture), dx(other.dx), dy(other.dy),
         left(other.left), right(other.right), active(other.active),
-        facingRight(other.facingRight), health(nullptr), pendingRemoval(other.pendingRemoval) {
+        facingRight(other.facingRight), health(nullptr), pendingRemoval(other.pendingRemoval),
+        damageTimer(other.damageTimer) {
         if (other.health) {
             health = new healthBar(*other.health);
         }
@@ -35,7 +38,8 @@ struct Wasp
     Wasp(Wasp&& other) noexcept :
         rect(other.rect), texture(other.texture), dx(other.dx), dy(other.dy),
         left(other.left), right(other.right), active(other.active),
-        facingRight(other.facingRight), health(other.health), pendingRemoval(other.pendingRemoval) {
+        facingRight(other.facingRight), health(other.health), pendingRemoval(other.pendingRemoval),
+        damageTimer(other.damageTimer) {
         other.health = nullptr;  // Transfer ownership
         other.texture = nullptr;
     }
@@ -52,6 +56,7 @@ struct Wasp
             active = other.active;
             facingRight = other.facingRight;
             pendingRemoval = other.pendingRemoval;
+            damageTimer = other.damageTimer;
 
             // Handle health bar
             delete health;
@@ -72,6 +77,7 @@ struct Wasp
             active = other.active;
             facingRight = other.facingRight;
             pendingRemoval = other.pendingRemoval;
+            damageTimer = other.damageTimer;
 
             // Handle health bar
             delete health;
@@ -109,6 +115,23 @@ struct Wasp
     void renderHealthBar(SDL_Renderer* renderer) {
         if (health && active && !pendingRemoval) {
             health->draw();
+        }
+    }
+
+    bool canDealDamage() const {
+        return damageTimer <= 0.0f;
+    }
+
+    void resetDamageTimer() {
+        damageTimer = DAMAGE_COOLDOWN;
+    }
+
+    void updateDamageTimer(float deltaTime) {
+        if (damageTimer > 0.0f) {
+            damageTimer -= deltaTime;
+            if (damageTimer < 0.0f) {
+                damageTimer = 0.0f;
+            }
         }
     }
 
