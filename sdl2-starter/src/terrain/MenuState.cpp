@@ -16,10 +16,10 @@ void MenuState::HandleEvents(SDL_Event& event) {
             case SDLK_RETURN:
             case SDLK_SPACE: {
                 std::cout << "Starting game..." << std::endl;
-                GameState* gameplayState = new gameplay();
-                static_cast<gameplay*>(gameplayState)->setTerrain(terrain);
-                static_cast<gameplay*>(gameplayState)->setTerrainElements(terrainElems);
-                stateManager.ChangeState(gameplayState);
+                gameplay* gameplayState = new gameplay(stateManager);
+                gameplayState->setTerrain(terrain);
+                gameplayState->setTerrainElements(terrainElems);
+                stateManager.PushState(gameplayState);  // Use PushState instead of ChangeState
                 return;
             }
             case SDLK_w:

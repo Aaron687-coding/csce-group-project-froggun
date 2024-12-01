@@ -27,6 +27,7 @@ Memory & Health Bar Fixes (2024):
 #define GAMEPLAY_H
 
 #include "GameState.h"
+#include "GameStateManager.h"  // Include full header instead of forward declaration
 #include "frog/frogClass.h"
 #include "turtle/turtleStruct.h"
 #include "wasp/waspStruct.h"
@@ -37,13 +38,13 @@ Memory & Health Bar Fixes (2024):
 #include "waterPhysics.h"
 #include "hurtFlash.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <cmath>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <memory>
 
-// Forward declare SDL_image functions we need
 extern "C" {
     SDL_Texture* IMG_LoadTexture(SDL_Renderer* renderer, const char* file);
     const char* IMG_GetError(void);
@@ -53,7 +54,14 @@ class gameplay : public GameState {
 private:
     const int SCREEN_WIDTH = 1280;
     const int SCREEN_HEIGHT = 720;
-    SDL_Renderer* currentRenderer;  // Add renderer member
+    SDL_Renderer* currentRenderer;
+    GameStateManager& stateManager;
+
+    // Font members for game over text
+    TTF_Font* pixelFont;
+    TTF_Font* pixelFontOutline;
+    SDL_Color whiteColor;
+    SDL_Color brownColor;
 
     // Damage constants
     const int WASP_DAMAGE = 10;
@@ -95,12 +103,64 @@ private:
 
     DefaultShotgun* shotgun;
 
+    TTF_Font* loadFont(const char* filename, int size) {
+        TTF_Font* font = TTF_OpenFont((std::string("build/debug/fonts/") + filename).c_str(), size);
+        if (!font) {
+            font = TTF_OpenFont((std::string("fonts/") + filename).c_str(), size);
+            if (!font) {
+                std::cout << "Failed to load font " << filename << ": " << TTF_GetError() << std::endl;
+            }
+        }
+        return font;
+    }
+
+    void renderTextPair(SDL_Renderer* renderer, const char* text, int x, int y, 
+                       TTF_Font* regularFont, TTF_Font* outlineFont) {
+        if (!outlineFont || !regularFont) return;
+
+        SDL_Surface* outlineSurface = TTF_RenderText_Blended(outlineFont, text, brownColor);
+        if (!outlineSurface) return;
+
+        SDL_Texture* outlineTexture = SDL_CreateTextureFromSurface(renderer, outlineSurface);
+        if (!outlineTexture) {
+            SDL_FreeSurface(outlineSurface);
+            return;
+        }
+
+        int width = outlineSurface->w;
+        int height = outlineSurface->h;
+
+        SDL_Surface* regularSurface = TTF_RenderText_Blended(regularFont, text, whiteColor);
+        if (!regularSurface) {
+            SDL_FreeSurface(outlineSurface);
+            SDL_DestroyTexture(outlineTexture);
+            return;
+        }
+
+        SDL_Texture* regularTexture = SDL_CreateTextureFromSurface(renderer, regularSurface);
+        if (!regularTexture) {
+            SDL_FreeSurface(outlineSurface);
+            SDL_FreeSurface(regularSurface);
+            SDL_DestroyTexture(outlineTexture);
+            return;
+        }
+
+        SDL_Rect destRect = {x - width/2, y, width, height};
+        SDL_RenderCopy(renderer, outlineTexture, NULL, &destRect);
+
+        SDL_Rect regularRect = {x - width/2, y + 1, width - 1, height};
+        SDL_RenderCopy(renderer, regularTexture, NULL, &regularRect);
+
+        SDL_FreeSurface(outlineSurface);
+        SDL_FreeSurface(regularSurface);
+        SDL_DestroyTexture(outlineTexture);
+        SDL_DestroyTexture(regularTexture);
+    }
+
     // Fisher's method for loading textures
-    SDL_Texture* loadTexture(const std::string& path, SDL_Renderer* renderer) 
-    {
+    SDL_Texture* loadTexture(const std::string& path, SDL_Renderer* renderer) {
         SDL_Texture* newTexture = IMG_LoadTexture(renderer, path.c_str());
-        if (newTexture == nullptr) 
-        {
+        if (newTexture == nullptr) {
             std::cerr << "Failed to load texture: " << IMG_GetError() << std::endl;
         }
         return newTexture;
@@ -212,11 +272,23 @@ private:
     }
 
 public:
-    gameplay() : frog(1280.0f / 2, 720.0f / 2), spritesheet(nullptr), tongueTip(nullptr), 
-                turtleTexture(nullptr), shellTexture(nullptr), bulletTexture(nullptr), 
-                waspTexture(nullptr), shotgun(nullptr), currentRenderer(nullptr) {
+    gameplay(GameStateManager& manager) 
+        : frog(1280.0f / 2, 720.0f / 2), 
+          spritesheet(nullptr), 
+          tongueTip(nullptr), 
+          turtleTexture(nullptr), 
+          shellTexture(nullptr), 
+          bulletTexture(nullptr), 
+          waspTexture(nullptr), 
+          shotgun(nullptr), 
+          currentRenderer(nullptr),
+          stateManager(manager),
+          pixelFont(nullptr),
+          pixelFontOutline(nullptr) {
         rainSystem = std::make_unique<RainSystem>(SCREEN_WIDTH, SCREEN_HEIGHT);
         flashManager = hurtFlash::getInstance();
+        whiteColor = {255, 255, 255, 255};
+        brownColor = {154, 77, 1, 255};
     }
 
     void setTerrain(std::shared_ptr<TerrainGrid> t) {
@@ -228,12 +300,20 @@ public:
     }
 
     void Init() override {
-        // We'll load the spritesheet in the first Render call since we need the renderer
+        pixelFont = loadFont("pixelFont.ttf", 32);
+        pixelFontOutline = loadFont("pixelFontOutline.ttf", 32);
     }
 
     void HandleEvents(SDL_Event& event) override {
-        // Don't handle events if frog is dead
-        if (frog.getState() == Frog::State::DEAD) return;
+        // Handle escape key when frog is dead
+        if (frog.getState() == Frog::State::DEAD) {
+            const Uint8* keys = SDL_GetKeyboardState(nullptr);
+            if (keys[SDL_SCANCODE_ESCAPE]) {
+                stateManager.PopState();  // Return to menu
+                return;
+            }
+            return;  // Don't handle other events when dead
+        }
 
         const Uint8* keys = SDL_GetKeyboardState(nullptr);
         
@@ -473,13 +553,8 @@ public:
 
         if (frog.getState() == Frog::State::GRAPPLING) {
             // Calculate tongue start position (frog's mouth)
-            int xOff;
-
             // Make sure the tongue always comes from the center of the mouth
-            if (frog.getFacing() == Frog::Direction::RIGHT)
-                xOff = 10;
-            else
-                xOff = -10;
+            int xOff = (frog.getFacing() == Frog::Direction::RIGHT) ? 10 : -10;
 
             int startX = destRect.x + destRect.w/2 + (xOff);
             int startY = destRect.y + destRect.h/2 + 4;
@@ -588,6 +663,23 @@ public:
         if (shotgun) {
             shotgun->render(renderer, destRect.x + destRect.w/2, destRect.y + destRect.h/2);
         }
+
+        // Render game over overlay and text when frog is dead
+        if (frog.getState() == Frog::State::DEAD) {
+            // Create semi-transparent dark overlay
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 192);  // 75% opacity black
+            SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+            SDL_RenderFillRect(renderer, &overlay);
+
+            // Render game over text
+            renderTextPair(renderer, "GAME OVER", 
+                         SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 50,
+                         pixelFont, pixelFontOutline);
+            renderTextPair(renderer, "PRESS ESCAPE TO GO BACK TO MENU",
+                         SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 50,
+                         pixelFont, pixelFontOutline);
+        }
     }
 
     void CleanUp() override {
@@ -619,6 +711,14 @@ public:
         if (waspTexture) {
             SDL_DestroyTexture(waspTexture);
             waspTexture = nullptr;
+        }
+        if (pixelFont) {
+            TTF_CloseFont(pixelFont);
+            pixelFont = nullptr;
+        }
+        if (pixelFontOutline) {
+            TTF_CloseFont(pixelFontOutline);
+            pixelFontOutline = nullptr;
         }
     }
 };

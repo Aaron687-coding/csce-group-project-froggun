@@ -30,6 +30,11 @@ public:
             states.top()->CleanUp();
             delete states.top();
             states.pop();
+            
+            // Initialize the state that becomes active
+            if (!states.empty()) {
+                states.top()->Init();
+            }
         }
     }
 
