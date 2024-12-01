@@ -41,49 +41,44 @@ private:
             return;
         }
 
-        // Get outline dimensions
-        int outlineWidth = outlineSurface->w;
-        int outlineHeight = outlineSurface->h;
+        // Create texture for outline text
+        SDL_Texture* outlineTexture = SDL_CreateTextureFromSurface(renderer, outlineSurface);
+        if (!outlineTexture) {
+            std::cout << "Failed to create outline texture: " << SDL_GetError() << std::endl;
+            SDL_FreeSurface(outlineSurface);
+            return;
+        }
+
+        // Get dimensions from outline surface
+        int width = outlineSurface->w;
+        int height = outlineSurface->h;
 
         // Now render regular text
         SDL_Surface* regularSurface = TTF_RenderText_Blended(regularFont, text, whiteColor);
         if (!regularSurface) {
             std::cout << "Failed to render regular text surface: " << TTF_GetError() << std::endl;
             SDL_FreeSurface(outlineSurface);
+            SDL_DestroyTexture(outlineTexture);
             return;
         }
 
-        // Get regular text dimensions
-        int regularWidth = regularSurface->w;
-        int regularHeight = regularSurface->h;
-
-        // Create textures
-        SDL_Texture* outlineTexture = SDL_CreateTextureFromSurface(renderer, outlineSurface);
         SDL_Texture* regularTexture = SDL_CreateTextureFromSurface(renderer, regularSurface);
-
-        if (!outlineTexture || !regularTexture) {
-            std::cout << "Failed to create textures: " << SDL_GetError() << std::endl;
+        if (!regularTexture) {
+            std::cout << "Failed to create regular texture: " << SDL_GetError() << std::endl;
             SDL_FreeSurface(outlineSurface);
             SDL_FreeSurface(regularSurface);
-            if (outlineTexture) SDL_DestroyTexture(outlineTexture);
-            if (regularTexture) SDL_DestroyTexture(regularTexture);
+            SDL_DestroyTexture(outlineTexture);
             return;
         }
 
-        // Calculate centering offsets
-        int xOffset = (outlineWidth - regularWidth) / 2;
-        int yOffset = (outlineHeight - regularHeight) / 2;
-
-        std::cout << xOffset << " " << yOffset << std::endl;
-
-        // Set up destination rectangles
-        SDL_Rect outlineRect = {x, y, outlineWidth, outlineHeight};
-        SDL_Rect regularRect = {x + xOffset, y + yOffset, regularWidth, regularHeight};
+        // Set up destination rectangles using outline dimensions for both
+        SDL_Rect destRect = {x, y, width, height};
 
         // Render outline text first (brown)
-        SDL_RenderCopy(renderer, outlineTexture, NULL, &outlineRect);
+        SDL_RenderCopy(renderer, outlineTexture, NULL, &destRect);
 
-        // Render regular text (white) on top, centered within the outline
+        // Render regular text (white) on top with a slight offset
+        SDL_Rect regularRect = {x, y + 1, width - 1, height};
         SDL_RenderCopy(renderer, regularTexture, NULL, &regularRect);
 
         // Clean up
@@ -123,8 +118,8 @@ public:
         // Load both fonts with the same size
         pixelFont = loadFont("pixelFont.ttf", 16);
         pixelFontOutline = loadFont("pixelFontOutline.ttf", 16);
-        titleFont = loadFont("pixelFont.ttf", 40);
-        titleFontOutline = loadFont("pixelFontOutline.ttf", 40);
+        titleFont = loadFont("pixelFont.ttf", 32);
+        titleFontOutline = loadFont("pixelFontOutline.ttf", 32);
     }
 
     void Update(float deltaTime) override {
@@ -170,7 +165,7 @@ public:
         }
         
         // Render text instructions
-        renderTextPair(renderer, "FROGGUN FONT BROKEN :(", 200, 100, titleFont, titleFontOutline);
+        renderTextPair(renderer, "FROGGUN", 200, 100, titleFont, titleFontOutline);
         renderTextPair(renderer, "PRESS W/S TO ADJUST WATER LEVEL", 100, 400, pixelFont, pixelFontOutline);
         renderTextPair(renderer, "PRESS E/D TO ADJUST TERRAIN LEVEL", 100, 450, pixelFont, pixelFontOutline);
         renderTextPair(renderer, "PRESS R TO REGENERATE MAP", 100, 500, pixelFont, pixelFontOutline);

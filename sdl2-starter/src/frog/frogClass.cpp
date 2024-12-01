@@ -72,6 +72,12 @@ void Frog::update(float deltaTime) {
     float newX = x + velocityX * deltaTime;
     float newY = y + velocityY * deltaTime;
 
+    // Calculate new jump height first
+    if (currentState == State::JUMPING && newY > 0) {
+        jumpTime += deltaTime;
+        jumpHeight = MAX_JUMP_HEIGHT * std::sin((jumpTime / JUMP_DURATION) * M_PI);
+    }
+
     // Check boundaries before updating position
     // Screen boundaries are hardcoded here since they're constants in gameplay.h
     const int SCREEN_WIDTH = 1280;
@@ -88,16 +94,17 @@ void Frog::update(float deltaTime) {
         velocityX = 0;
     }
 
-    // Vertical boundary check
-    if (newY < 0) {
-        newY = 0;
+    // Vertical boundary check, accounting for jump height
+    float effectiveY = newY - jumpHeight;
+    if (effectiveY < 0) {
+        newY = jumpHeight; // Adjust position to keep visual position at top of screen
         velocityY = 0;
         if (currentState == State::JUMPING) {
-            currentState == State::IDLE;
+            currentState = State::IDLE;
             stopMoving();
         }
-    } else if (newY + COLLISION_HEIGHT > SCREEN_HEIGHT) {
-        newY = SCREEN_HEIGHT - COLLISION_HEIGHT;
+    } else if (effectiveY + COLLISION_HEIGHT > SCREEN_HEIGHT) {
+        newY = SCREEN_HEIGHT - COLLISION_HEIGHT + jumpHeight; // Adjust for jump height
         velocityY = 0;
     }
 
@@ -105,15 +112,9 @@ void Frog::update(float deltaTime) {
     x = newX;
     y = newY;
 
-    // Handle jump physics
+    // Handle jump physics while the frog is not at the top of the screen
     if (currentState == State::JUMPING) {
-        // Update jump time
-        jumpTime += deltaTime;
-        
-        // Calculate jump height using a sine wave for smooth bobbing
-        jumpHeight = MAX_JUMP_HEIGHT * std::sin((jumpTime / JUMP_DURATION) * M_PI);
-
-        // Only reset jump if we're not grappling
+        // Only reset jump if we're not grappling and jump duration is complete
         if (jumpTime >= JUMP_DURATION && currentState != State::GRAPPLING) {
             jumpTime = 0;
             jumpHeight = 0;

@@ -60,6 +60,10 @@ private:
     const int BULLET_DAMAGE = 30;
     const int FROG_MAX_HEALTH = 100;
 
+    // How many enemies are spawned at a time
+    const int numTurtlesSpawned = 1;
+    const int numWaspsSpawned = 3;
+
     // Add hurtFlash instance
     hurtFlash* flashManager;
 
@@ -148,16 +152,6 @@ private:
                 wasp.resetDamageTimer();
             }
         }
-
-        // Check bullet collisions
-        for (const auto& bullet : bullets) {
-            if (!bullet.active) continue;
-            
-            if (SDL_HasIntersection(&bullet.rect, &frogBox)) {
-                frog.takeDamage(BULLET_DAMAGE);
-                flashManager->startFlash(&frog); // Start flash effect
-            }
-        }
     }
 
     void updateWasps(std::vector<Wasp>&wasps, Frog & player, int speed) {
@@ -205,9 +199,15 @@ private:
         for (auto it = bullets.begin(); it != bullets.end(); ) {
             SDL_Rect bulletBox = it->rect;
             // Check if the bullet's rectangle intersects with the frog's rectangle
-            // Bullet hits the frog, remove the bullet from the vector
-            if (SDL_HasIntersection(&bulletBox, &frogBox)) it = bullets.erase(it);
-            else ++it; // Continue to the next bullet
+            if (SDL_HasIntersection(&bulletBox, &frogBox)) {
+                // Apply damage to the frog when hit by a bullet
+                frog.takeDamage(BULLET_DAMAGE);
+                flashManager->startFlash(&frog); // Start flash effect
+                it = bullets.erase(it);  // Remove the bullet after dealing damage
+            }
+            else {
+                ++it; // Continue to the next bullet
+            }
         }
     }
 
@@ -340,9 +340,12 @@ public:
         static int frameCount = 0; // Track frame count to control spawning
         frameCount++;
 
-        // Spawn turtles and wasps only once every few frames
-        Turtle::spawnTurtles(turtles, frameCount, turtleTexture, currentRenderer, 0);
-        Wasp::spawnWasps(wasps, frameCount, waspTexture, currentRenderer);
+        // Spawn turtles and wasps once every few frames
+        for (int i = 0; i < numTurtlesSpawned; i++)
+            Turtle::spawnTurtles(turtles, frameCount, turtleTexture, currentRenderer, 0);
+        // Spawn several wasps at a time
+        for (int i = 0; i < numWaspsSpawned; i++)
+            Wasp::spawnWasps(wasps, frameCount, waspTexture, currentRenderer);
         
         // Update turt bullets
         updateBullets(bullets, frog);
