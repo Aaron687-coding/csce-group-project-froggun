@@ -1,0 +1,278 @@
+﻿  batClass.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\GunTemplate.h(133,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'bat/batClass.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\GunTemplate.h(134,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'bat/batClass.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\bat\batClass.cpp(75,64): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\bat\batClass.cpp(75,48): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\bat\batClass.cpp(99,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\bat\batClass.cpp(99,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  beetleClass.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\GunTemplate.h(133,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'beetle/beetleClass.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\GunTemplate.h(134,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'beetle/beetleClass.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\beetle\beetleClass.cpp(74,24): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\beetle\beetleClass.cpp(136,89): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\beetle\beetleClass.cpp(136,57): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  frogClass.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\frog\frogClass.cpp(78,38): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\frog\frogClass.cpp(93,29): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\frog\frogClass.cpp(178,16): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\frog\frogClass.cpp(179,16): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  DefaultShotgun.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\GunTemplate.h(133,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'guns/DefaultShotgun.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\GunTemplate.h(134,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'guns/DefaultShotgun.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(25,15): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(26,16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(33,23): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,67): warning C4305: 'argument': truncation from 'double' to '_Ty'
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,67): warning C4305:         with
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,67): warning C4305:         [
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,67): warning C4305:             _Ty=float
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,67): warning C4305:         ]
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,59): warning C4305: 'argument': truncation from 'double' to '_Ty'
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,59): warning C4305:         with
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,59): warning C4305:         [
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,59): warning C4305:             _Ty=float
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(49,59): warning C4305:         ]
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(52,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(132,14): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(133,14): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(134,43): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(235,22): warning C4244: '=': conversion from 'const int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\DefaultShotgun.cpp(236,22): warning C4244: '=': conversion from 'const int' to 'float', possible loss of data
+  healthBar.cpp
+  hurtFlash.cpp
+  main.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\RainSystem.h(25,27): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+  terrainElem.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(8,71): warning C4244: 'argument': conversion from '_Rep' to 'unsigned int', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(8,71): warning C4244:         with
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(8,71): warning C4244:         [
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(8,71): warning C4244:             _Rep=__int64
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(8,71): warning C4244:         ]
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(45,64): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(45,64): warning C4267:         with
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(45,64): warning C4267:         [
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(45,64): warning C4267:             _Ty=int
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(45,64): warning C4267:         ]
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(50,52): warning C4244: 'argument': conversion from 'int' to '_Ty', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(50,52): warning C4244:         with
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(50,52): warning C4244:         [
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(50,52): warning C4244:             _Ty=float
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(50,52): warning C4244:         ]
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(51,52): warning C4244: 'argument': conversion from 'int' to '_Ty', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(51,52): warning C4244:         with
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(51,52): warning C4244:         [
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(51,52): warning C4244:             _Ty=float
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrainElem.cpp(51,52): warning C4244:         ]
+  MenuState.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\RainSystem.h(25,27): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.h(129,56): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.h(129,40): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\wasp\waspStruct.h(111,56): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\wasp\waspStruct.h(111,40): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\GunTemplate.h(133,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\guns\GunTemplate.h(134,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\gameplay.h(407,78): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\gameplay.h(407,53): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\gameplay.h(576,24): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\gameplay.h(577,24): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\gameplay.h(595,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\gameplay.h(607,32): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\gameplay.h(608,32): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+  (compiling source file 'terrain/MenuState.cpp')
+  
+  TerrainGrid.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrain\TerrainGrid.cpp(121,64): warning C4305: 'argument': truncation from 'double' to '_Ty'
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrain\TerrainGrid.cpp(121,64): warning C4305:         with
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrain\TerrainGrid.cpp(121,64): warning C4305:         [
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrain\TerrainGrid.cpp(121,64): warning C4305:             _Ty=float
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\terrain\TerrainGrid.cpp(121,64): warning C4305:         ]
+  bulletStruct.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtBullet\bulletStruct.cpp(6,34): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtBullet\bulletStruct.cpp(11,26): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtBullet\bulletStruct.cpp(12,26): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+  turtleStruct.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.h(129,56): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'turtle/turtleStruct.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.h(129,40): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'turtle/turtleStruct.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(31,30): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(32,30): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(36,34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(37,34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(57,23): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(58,23): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(99,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(143,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(392,75): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+  (compiling source file 'turtle/turtleStruct.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(392,75):
+      the template instantiation context (the oldest one first) is
+          D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(109,21):
+          see reference to function template instantiation 'Bullet &std::vector<Bullet,std::allocator<Bullet>>::emplace_back<int&,int&,const float&,SDL_Texture*&,float&,float&>(int &,int &,const float &,SDL_Texture *&,float &,float &)' being compiled
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector(858,24):
+          see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_one_at_back<int&,int&,const float&,SDL_Texture*&,float&,float&>(int &,int &,const float &,SDL_Texture *&,float &,float &)' being compiled
+          with
+          [
+              _Ty=Bullet
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector(776,20):
+          see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_back_with_unused_capacity<int&,int&,const float&,SDL_Texture*&,float&,float&>(int &,int &,const float &,SDL_Texture *&,float &,float &)' being compiled
+          with
+          [
+              _Ty=Bullet
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector(794,27):
+          see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,int&,int&,const float&,SDL_Texture*&,float&,float&>(_Alloc &,_Objty *const ,int &,int &,const float &,SDL_Texture *&,float &,float &)' being compiled
+          with
+          [
+              _Alloc=std::allocator<Bullet>,
+              _Ty=Bullet,
+              _Objty=Bullet
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmemory(698,14):
+          see reference to function template instantiation '_Ty *std::construct_at<_Objty,int&,int&,const float&,SDL_Texture*&,float&,float&>(_Ty *const ,int &,int &,const float &,SDL_Texture *&,float &,float &) noexcept(<expr>)' being compiled
+          with
+          [
+              _Ty=Bullet,
+              _Objty=Bullet
+          ]
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(392,75): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(392,75): warning C4244:         with
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(392,75): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(392,75): warning C4244:             _Ty=int
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(392,75): warning C4244:         ]
+  (compiling source file 'turtle/turtleStruct.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(392,75):
+      the template instantiation context (the oldest one first) is
+          D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\turtle\turtleStruct.cpp(168,21):
+          see reference to function template instantiation 'Turtle &std::vector<Turtle,std::allocator<Turtle>>::emplace_back<SDL_Rect&,bool,int,int,SDL_Texture*&>(SDL_Rect &,bool &&,int &&,int &&,SDL_Texture *&)' being compiled
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector(858,24):
+          see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_one_at_back<SDL_Rect&,bool,int,int,SDL_Texture*&>(SDL_Rect &,bool &&,int &&,int &&,SDL_Texture *&)' being compiled
+          with
+          [
+              _Ty=Turtle
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector(776,20):
+          see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_back_with_unused_capacity<SDL_Rect&,bool,int,int,SDL_Texture*&>(SDL_Rect &,bool &&,int &&,int &&,SDL_Texture *&)' being compiled
+          with
+          [
+              _Ty=Turtle
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector(794,27):
+          see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,SDL_Rect&,bool,int,int,SDL_Texture*&>(_Alloc &,_Objty *const ,SDL_Rect &,bool &&,int &&,int &&,SDL_Texture *&)' being compiled
+          with
+          [
+              _Alloc=std::allocator<Turtle>,
+              _Ty=Turtle,
+              _Objty=Turtle
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmemory(698,14):
+          see reference to function template instantiation '_Ty *std::construct_at<_Objty,SDL_Rect&,bool,int,int,SDL_Texture*&>(_Ty *const ,SDL_Rect &,bool &&,int &&,int &&,SDL_Texture *&) noexcept(<expr>)' being compiled
+          with
+          [
+              _Ty=Turtle,
+              _Objty=Turtle
+          ]
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(393,90): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+  (compiling source file 'turtle/turtleStruct.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(393,90):
+      the template instantiation context (the oldest one first) is
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector(794,27):
+          see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,int&,int&,const float&,SDL_Texture*&,float&,float&>(_Alloc &,_Objty *const ,int &,int &,const float &,SDL_Texture *&,float &,float &)' being compiled
+          with
+          [
+              _Alloc=std::allocator<Bullet>,
+              _Ty=Bullet,
+              _Objty=Bullet
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmemory(698,14):
+          see reference to function template instantiation '_Ty *std::construct_at<_Objty,int&,int&,const float&,SDL_Texture*&,float&,float&>(_Ty *const ,int &,int &,const float &,SDL_Texture *&,float &,float &) noexcept(false)' being compiled
+          with
+          [
+              _Ty=Bullet,
+              _Objty=Bullet
+          ]
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(393,90): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(393,90): warning C4244:         with
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(393,90): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(393,90): warning C4244:             _Ty=int
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(393,90): warning C4244:         ]
+  (compiling source file 'turtle/turtleStruct.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility(393,90):
+      the template instantiation context (the oldest one first) is
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector(794,27):
+          see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,SDL_Rect&,bool,int,int,SDL_Texture*&>(_Alloc &,_Objty *const ,SDL_Rect &,bool &&,int &&,int &&,SDL_Texture *&)' being compiled
+          with
+          [
+              _Alloc=std::allocator<Turtle>,
+              _Ty=Turtle,
+              _Objty=Turtle
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmemory(698,14):
+          see reference to function template instantiation '_Ty *std::construct_at<_Objty,SDL_Rect&,bool,int,int,SDL_Texture*&>(_Ty *const ,SDL_Rect &,bool &&,int &&,int &&,SDL_Texture *&) noexcept(false)' being compiled
+          with
+          [
+              _Ty=Turtle,
+              _Objty=Turtle
+          ]
+  
+  waspStruct.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\wasp\waspStruct.h(111,56): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'wasp/waspStruct.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\wasp\waspStruct.h(111,40): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  (compiling source file 'wasp/waspStruct.cpp')
+  
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\wasp\waspStruct.cpp(18,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\wasp\waspStruct.cpp(19,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  waterPhysics.cpp
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\waterPhysics.cpp(9,23): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\waterPhysics.cpp(74,34): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+D:\School\CSCE A201\Windows config\ConsoleApplication1\ConsoleApplication1\waterPhysics.cpp(75,34): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  Generating Code...
+  ConsoleApplication1.vcxproj -> D:\School\CSCE A201\Windows config\ConsoleApplication1\x64\Debug\ConsoleApplication1.exe
